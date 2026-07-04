@@ -1,0 +1,22 @@
+.venv/
+
+# Only track top-level .md files in each workspace subdir + workspaces.xml
+workspace/*
+!workspace/*/
+workspace/*/*
+!workspace/*/*.md
+!workspace/workspaces.xml
+
+# Agent runtime artifacts
+.claude/
+.codex
+.codex-tmp/
+.codex_tmp/
+.uvtmp/
+.aris/
+.mcp.json
+
+# Local browser-snapshot scratch from playwright tooling
+.playwright-mcp/
+.tmp_dispatch/
+.tmp/

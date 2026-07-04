@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "mcp-communicator-telegram": {
+      "type": "stdio",
+      "command": "path/to/mcp-communicator-telegram-data/bin/mcp-client.sh"
+    },
+    "chrome-local": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--browserUrl=http://127.0.0.1:<PORT>"
+      ],
+      "_comment": "<PORT>: Chrome remote debugging port, e.g. 9222. Pick one that doesn't conflict with other users.",
+      "env": {}
+    }
+  }
+}

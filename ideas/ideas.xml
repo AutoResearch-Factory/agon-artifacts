@@ -1,0 +1,43 @@
+<!--
+  <idea slug="short-slug" topic="mmdd-topic-slug" date="YYYY-MM-DD" current_version="1" score="none">
+    <one-line>One-sentence summary. (使用中文)</one-line>
+  </idea>
+-->
+<ideas>
+  <idea slug="fex-search-complexity" topic="0616-fex" date="2026-06-16" current_version="5" score="7">
+    <one-line>把 FEX 搜索复杂度分解为等价类覆盖数、policy-gradient landscape 条件和实值系数可行性硬度.</one-line>
+  </idea>
+  <idea slug="fex-synchro-prior" topic="0616-fex" date="2026-06-16" current_version="5" score="7">
+    <one-line>将 synchrosqueezed transform / butterfly factorization 估计的频率作为 FEX 输入层冻结先验, 修复 Multi-Scale FEX 的频率分离失效模式.</one-line>
+  </idea>
+  <idea slug="fex-llm-skeleton" topic="0616-fex" date="2026-06-16" current_version="3" score="5">
+    <one-line>用 LLM 生成完整表达式树骨架作为 FEX RL controller 的 warm-start, 将 LLM 科学先验与 FEX 精确参数优化结合.</one-line>
+  </idea>
+  <idea slug="fex-curriculum-depth" topic="0616-fex" date="2026-06-16" current_version="3" score="5">
+    <one-line>设计渐进式树深搜索: 从 depth-1 开始锁定最优子表达式, 逐步嵌入更深的树, 将指数搜索分解为多次多项式搜索.</one-line>
+  </idea>
+  <idea slug="fex-failure-taxonomy" topic="0616-fex" date="2026-06-16" current_version="5" score="7">
+    <one-line>用 capacity/refit/true-error/search 等反事实 oracle gap 对 FEX/RL-SR 失败做非互斥归因, 判断一次失败最该由哪类干预救回.</one-line>
+  </idea>
+  <idea slug="fex-dim-lift-skeleton" topic="0616-fex" date="2026-06-16" current_version="5" score="7">
+    <one-line>从低维 FEX 表达式自动推断可交换宏并提升到高维, 检验 FEX 高维成功是否由可恢复的对称结构驱动.</one-line>
+  </idea>
+  <idea slug="fex-active-collocation" topic="0616-fex" date="2026-06-16" current_version="3" score="5">
+    <one-line>用自适应采样策略替代 FEX 固定采样, 选择候选表达式残差分歧最大的点来降低 RL reward 方差.</one-line>
+  </idea>
+  <idea slug="fex-prose-coarse-refine" topic="0616-fex" date="2026-06-24" current_version="1" score="3">
+    <one-line>构建 PROSE-coarse + FEX-refine 双阶段 PDE 求解器, PROSE 快速给出数值近似和结构假设, FEX 从 PROSE 结构假设出发搜索精确符号解, 通过消融确定三种信息传递渠道的各自贡献.</one-line>
+  </idea>
+  <idea slug="fex-prose-embed-condition" topic="0616-fex" date="2026-06-24" current_version="1" score="3">
+    <one-line>用 PROSE 预训练的符号编码器 (在 512K PDE 上训练) 作为冻结特征提取器, 将 PDE 结构嵌入向量作为 FEX controller 的条件输入, 测试跨社区预训练表示对 FEX 搜索的迁移效果.</one-line>
+  </idea>
+  <idea slug="fex-prose-skeleton-convexity" topic="0616-fex" date="2026-06-24" current_version="1" score="3">
+    <one-line>对 PROSE Skeleton 模式的经验发现给出理论解释: 证明对特定 PDE 类, 给定骨架后系数优化问题满足 PL 条件, 从而解释为什么 PROSE Skeleton 模式几乎不损失精度以及 FEX 系数优化通常快速收敛.</one-line>
+  </idea>
+  <idea slug="fex-prose-skel-condition" topic="0616-fex" date="2026-06-25" current_version="1" score="3">
+    <one-line>定义骨架条件数 kappa(T) 为变量投影残差 Jacobian 的条件数, 证明它决定 FEX 系数收敛速率, 用作 PROSE 骨架输出的可计算 accept/reject 判据, 统一诊断 Good-Structure-Bad-Score 失效.</one-line>
+  </idea>
+  <idea slug="fex-prose-defect-correct" topic="0616-fex" date="2026-06-25" current_version="1" score="3">
+    <one-line>用 PROSE 粗解 u0 做 defect correction, 令 FEX 仅搜索符号修正项 delta_u = u - u0, 测试修正项是否落在更低复杂度的 S_k 子空间中从而指数缩小搜索空间.</one-line>
+  </idea>
+</ideas>

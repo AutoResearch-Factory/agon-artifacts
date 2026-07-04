@@ -1,0 +1,40 @@
+<!--
+  <workspace slug="short-slug">
+    <one-line>One-sentence description of the current exp status. (使用中文)</one-line>
+  </workspace>
+-->
+<workspaces>
+  <workspace slug="fex-search-complexity" date="2026-06-28" gpu_dollars_equivalent="348.88">
+    <one-line>V7 iter46 phase=needs_reviewer route/v7-reviewer-response: V6 reviewer must-fix all addressed. G2 THEOREM (5 theorems), G2↔G3 bridge (5 theorems + 4 corollaries), 2-action gap quantified, evidence recovered, lit-feed consumed, audit BLOCKER resolved. V7 ready for review.</one-line>
+  </workspace>
+  <workspace slug="fex-synchro-prior" date="2026-07-01" gpu_dollars_equivalent="1768.45">
+    <one-line>V2 iter16 scientist. MF oracle anchor remains strong (oracle_soft 5/5 ~1.5e-6 vs standard 0/5); windowed_fft now covers [12,24], but MF-VES pilot 0/2 is invalid due alpha init ordering bug. P0 fixes per-component alpha/schema, runs diagnostic smoke, then reruns MF-VES s0/s2. phase=coding_and_running.</one-line>
+  </workspace>
+  <workspace slug="fex-llm-skeleton" date="2026-06-16">
+    <one-line>v3 pilot POSITIVE but bounded: CUDA finite-library controller proxy shows hard corrupted top-1 fails (relL2 1.1e-2-1.3e-2), soft top-k recovers in 2 evals, and unranked operator-set succeeds 5/5 only on easy Poisson but 1/5 on harder cases; real FEX controller sweep remains next gate.</one-line>
+  </workspace>
+  <workspace slug="fex-curriculum-depth" date="2026-06-16">
+    <one-line>v3 pilot NEGATIVE: naive 3-step depth2 transfer probe ranks worse than shallow reward on radial-sine (rho 0.10 vs 0.67), and oracle x^2+x^2 is not clearly better, forcing probe-gated/diagnostic framing.</one-line>
+  </workspace>
+  <workspace slug="fex-failure-taxonomy" date="2026-06-16">
+    <one-line>v5 pilot POSITIVE but narrowed: standard FEX fails 6/6 non-Poisson gates, capacity oracle solves both, and fixed-action refit rescues 6/6 actions (12/12 starts, rel.L2 1.6e-7 to 5.3e-7); handoff in data/MANIFEST.md.</one-line>
+  </workspace>
+  <workspace slug="fex-dim-lift-skeleton" date="2026-07-04" gpu_dollars_equivalent="412.02064">
+    <one-line>iter66 route/v22-learnable-transfer: residual_lift closed (20/20 negative, lowd +50-60%); all 6 primitives done; pairwise scratch definitive hardness is last gap.</one-line>
+  </workspace>
+  <workspace slug="fex-active-collocation" date="2026-06-16">
+    <one-line>v3 pilot NEGATIVE/diagnostic: Poisson QBC active collocation is slower (standard step 18, active refresh5 step 23) and QBC-mixed pools nearly double fixed-candidate reward CV; handoff in data/MANIFEST.md.</one-line>
+  </workspace>
+  <workspace slug="fex-prose-skeleton-convexity">
+    <one-line>pilot POSITIVE(局部): 5 种骨架最优解处均 100% 小半径切片凸, min_eig>0 (PSD for over-parameterized case); 但全局凸性仅对系数线性骨架成立, 非线性频率参数骨架全局非凸.</one-line>
+  </workspace>
+  <workspace slug="fex-prose-residual-critic">
+    <one-line>piloting: 部分表达式树特征与最终 MSE 的 Spearman 相关性测试.</one-line>
+  </workspace>
+  <workspace slug="fex-prose-skel-condition">
+    <one-line>piloting: 30 种骨架的条件数 kappa vs BFGS 步数 Spearman 相关测试.</one-line>
+  </workspace>
+  <workspace slug="fex-prose-defect-correct">
+    <one-line>piloting: 1D Poisson u* vs delta_u 表达式树深度对比.</one-line>
+  </workspace>
+</workspaces>
