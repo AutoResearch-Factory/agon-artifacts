@@ -1,12 +1,14 @@
 # Artifacts Example for Agon
 
+English | [中文](README_zh.md)
+
 This repository is an example artifacts store for [Agon](https://github.com/AutoResearch-Factory/Agon). Agon runs the research workflow; this repository stores the generated topics, ideas, proposals, paper notes, and experiment workspaces.
 
 In practice, it is easier to manage the system when artifacts are kept separate from code (i.e., prompts).
 
 ## Project Layout
 
-```text
+```
 .
 ├── servers_notes.md           # Cross-project compute notes template.
 ├── topics/                    # Topic seeds and landscape reports.
