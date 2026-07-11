@@ -179,3 +179,42 @@
 
 - **Truong, Truong (2026), Entropy Collapse 普适失效模式** (arXiv:2512.12381)。证明反馈放大系统的熵坍缩是一阶 (不连续) 相变, 经典 CSD 框架结构性失效 (无预警). 精读发现可信度瑕疵 (自指引用、S2/正文引用数不一致), 仅引用可独立验证的解析定理. 独立支持 idea"不假定经典临界慢化"的立场, 其 Remark 承认 CSD 对 fold 型二阶转换仍适用, 恰解释 idea pilot 中 fold testbed 上 raw EWS 高达 0.919 的结果. 撞车无.
 - **Goltsev, Dorogovtsev (2026), 网络渗流 susceptibility EWS** (arXiv:2602.10060, R-Score A/19)。观察者节点 susceptibility 在渗流临界点发散, 推广到 k-core 崩塌/相依链路网络. 研究对象、驱动机制 (缓变准静态 vs 强对流快强迫) 均不同, 是经典 CSD 范式的严谨范例, 可作背景引用划清边界. 撞车无.
+
+## [deep-lit-tick --scope idea causal-scs-indicator, 2026-07-11 iteration 2]
+
+<!-- 本轮 idea-scope deep-lit-tick 第 2 次对本 idea 运行 (第 1 次已读 26 篇). 精读 18 篇 (5 轮, B4 饱和), 全部在此前 84 篇已读集之外, 由 dispatcher 汇总并入本文件 (idea-scope 规则不直接写 landscape). 聚焦用户指定的 v2 idea 四个具体设计点: 双族 D/J profile、synthetic stop gate、matched negative controls、PCMCI+/LKIF. 详见 ideas/causal-scs-indicator-deep-lit-report-2026-07-11-iteration2.md 的完整撞车矩阵. -->
+
+### R. 双族 (D,J) profile 同构/镜像工作 (novelty 佐证核心)
+
+- **Yu, Guo, Luk (2024), Robust Time Series Causal Discovery for Agent-Based Model Validation (RCV-PCMCI)** (arXiv:2410.19412)。提出 Consistency/Variability 统计量, 与本 idea 的 (D,J) 双族在数学形式上同源, 但用途相反——用于滤除跨折不一致性以求更稳健的因果图, 而非把该不一致性本身当作事件预警信号. 撞车 LOW (方向镜像).
+- **Yu, Guo, Luk (2026), VCDF: A Validated Consensus-Driven Framework for Time Series Causal Discovery** (arXiv:2602.21381)。同一作者簇后续版, 扩展 consensus-driven 验证框架. **作者本人在结论中明确承认从未测试过跨折不一致性是否可能反映真实结构变化**——是本轮迄今最直接的 novelty 佐证: 该子领域的原创作者自己标记了本 idea 想填补的确切空白. 撞车 LOW。
+- **Faltenbacher, Wahl, Herman, Runge (2025), How PC-based Methods Err: Towards Better Reporting of Assumption Violations and Small Sample Errors** (arXiv:2502.14719)。PCMCI+ 方法本身的作者团队提出零额外计算成本的"coherency score"内部自洽性诊断, 复用已执行的 CI 检验日志区分统计噪声与结构性假设违反. 候选第三诊断通道 (可能补充或替代当前二维 D/J 设计, 需与 codex second opinion 讨论是否引入会削弱"双通道正是为检验 C2 互补性"这一论证). 撞车 LOW, 与 PCMCI+/LKIF 设计点也直接相关.
+- **Wahl, Runge (2024), Separation-Based Distance Measures for Causal Graphs** (arXiv:2402.04952)。提出一族基于图分离陈述的距离度量, 与 Tigramite 兼容, 可用于严格化 J (突变/edge 变化) 通道的定义. 撞车 LOW.
+
+### S. Synthetic stop gate 现成基础设施
+
+- **Stein, Penzel, Piater, Denzler (2026), TCD-Arena: Assessing Robustness of Time Series Causal Discovery Methods Against Assumption Violations** (arXiv:2605.03045, R-Score S/22)。33 类假设违背 × 16 regime × 10 方法的现成基准, 含真实 DAG 变化的正对照生成器 (V_stat/V_coef) 以及缺失/样本量/观测噪声混淆生成器 (V_mcar/mar/mnar/V_length/V_obs) —— 正是 v2 review 指出缺失的 "已知真实 DAG 变化的 positive control regime" 与混淆生成器库. 撞车 LOW (评测基准而非预警框架).
+- **Butler, Machlanski, Dimitrakopoulos, Tsaftaris (2026), Rethinking Chronological Causal Discovery with Signal Processing** (arXiv:2602.19903)。实证 GC/PCMCI/DYNOTEARS 对窗口长度/采样率 (Q,k) 高度敏感 ("因果 Nyquist" 现象), 提出候选第七类混淆源 (相变现象可能被误判为真实结构变化). 双变量延迟滤波器设置可作低成本合成 testbed. 撞车 LOW.
+- **Machlanski, Samothrakis, Clarke (2023), Robustness of Algorithms for Causal Structure Learning to Hyperparameter Choice** (arXiv:2310.18212)。证明超参数误设下的鲁棒性剖面与 oracle 最优表现近乎正交, 提出 BEST/WORST/DEFAULT/SIM_MEAN 四态框架, 建议移植用于隔离超参数漂移与真实窗口驱动信号 (gate 设计应固定超参数控制). 撞车 LOW.
+
+### T. Matched negative controls 方法论
+
+- **Petersen (2024), Are You Doing Better Than Random Guessing? A Call for Using Negative Controls When Evaluating Causal Discovery Algorithms** (arXiv:2412.10039)。提出超几何精确检验 + 模拟负对照的四步评估管线, 直接呼应本 idea 已有的 paired-trajectory 负对照设计, 可借鉴其统计严谨性. 撞车 LOW.
+- **Kummerfeld, Lim, Shi (2022), Data-driven Automated Negative Control Estimation (DANCE)** (arXiv:2210.00528)。用 vanishing tetrad test 从数据中自动搜索并验证横截面负对照变量. 应用场景 (横截面因果推断) 与本 idea (时序滑窗) 不同, 仅方法论姿态可类比. 撞车 LOW.
+- **Tsoumas, Bormpoudakis, Sitokonstantinou, Askitopoulos, Kalogeras, Kontoes, Athanasiadis (2025), Positive-Unlabeled Learning for Control Group Construction in Observational Causal Inference** (arXiv:2507.14528)。用 PU-learning 在无天然对照组时构造高置信度对照组. 真实数据阶段 (而非当前 synthetic gate 阶段) 的候选工具. 撞车 LOW.
+
+### U. PCMCI+/LKIF 镜像对照与应用背景 (均加固 "PCMCI+ 在假设违背下确实脆弱" 这一动机前提)
+
+- **Stanishevska, Guikema (2025), Operational early warning of thunderstorm-driven power outages from open data** (arXiv:2510.03959)。两阶段机器学习做雷暴驱动停电早期预警, 其"causal"仅指无泄漏特征工程, 非结构因果发现. 应用领域高度相关 (强对流驱动的下游影响预警) 但方法不撞车; 该研究本身也报告 NEGATIVE 结果, 侧面印证此类预警任务的真实难度. 撞车无.
+- **Paldino, Bontempi (2025), Causal Discovery in Multivariate Time Series through Mutual Information Featurization (TD2C)** (arXiv:2508.01848)。监督式因果发现, 主动消除假设违背以求更准的图, 方向与本 idea 正相反 (镜像对照). 撞车 LOW.
+- **Fesanghary, Havaldar (2026), GRACE: Gated Refinement for Accurate Causal Edge Discovery in High-Dimensional Time Series** (arXiv:2606.23880)。L0 门控 + bootstrap 多数投票丢弃窗口不稳定性以求精炼骨架, 坐实了此前已读的 Bagged-PCMCI+ (arXiv:2306.08946) 这一"把不稳定性平均掉"的路线仍在持续发展. 撞车 LOW.
+- **Stein, Shadaydeh, Denzler (2024), Embracing the black box: Heading towards foundation models for causal discovery from time series data** (arXiv:2402.09305)。监督端到端映射因果图的立场论文, 方向正交于本 idea, 报告诚实 (含负结果). 撞车无.
+- **Sanchez, Machlanski, McDonagh, Tsaftaris (2025), Causal Ordering for Structure Learning from Time Series (DOTS)** (arXiv:2510.24639)。多噪声尺度扩散排序软投票求更准结构, 方向正交. 撞车无.
+- **Machlanski, Samothrakis, Clarke (2023), The Challenges of Hyperparameter Tuning for Accurate Causal Effect Estimation** (arXiv:2303.01412)。横截面 CATE 估计的超参数/指标选择敏感性研究, 非时序因果发现, 仅作方法论警示背景. 撞车无.
+
+### V. 背景类比 (非因果, EWS/物理背景)
+
+- **Dylewsky, Anand, Bauch (2024), Early Warning Signals for Bifurcations Embedded in High Dimensions** (arXiv:2402.10300)。神经网络嵌入高维观测的经典 (慢变 regime) EWS, "silent catastrophe" 概念 (高维中隐藏的失稳信号) 可类比. 撞车 LOW.
+- **Bar, Banerjee, Casals, Catalan, Rodríguez-Viejo (2025), Disorder-aided Early Warning Signals: Predicting Catastrophic Shifts in Athermal Systems** (arXiv:2509.01601)。凝聚态物理中无序如何拉长预警窗口, 直觉上可类比环境异质性对指标可靠性的影响. 撞车无.
+
+**待 records-only 引用 (无 arXiv ID, 无法通过 arxiv-tool 全文精读, 仅摘要级记录)**: Miersch, Günther, Runge et al. (2025, DOI:10.1175/aies-d-24-0114.1) 对 PCMCI+ 在 45 个真实流域上的鲁棒性评测; Gamella, Peters, Bühlmann (2025, DOI:10.1038/s42256-024-00964-x) 用 Causal Chambers 显示 PCMCI+ 在真实因果链上表现近乎随机猜测。两篇均与本 idea 自身 Stage-1 NEGATIVE pilot 结果高度平行, 是独立的真实世界证据来源, 但受限于 arxiv-tools 红线未能下载全文, 如实标注此限制。
