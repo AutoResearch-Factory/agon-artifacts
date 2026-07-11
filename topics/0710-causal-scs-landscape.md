@@ -118,10 +118,64 @@
 
 - **Ashwin et al. (2026), "Early warnings of critical transitions through vector autoregression: lessons from multiscale systems"** (arXiv:2605.28260). 提出用向量自回归 (VAR) 同时拟合多条时间序列以提取系统特征值, 从而在传统单变量方差/滞后自相关早期预警信号因振荡行为而失效的多尺度系统 (fold、亚临界 Hopf、含额外时间尺度分离的 singular Hopf 分岔) 中, 不仅判断稳定性还能识别即将发生的分岔类型. 机制是从 VAR 拟合系数中反推特征值 (确定性动力学重构), 而非追踪 VAR 系数本身在滑动窗口下的方差/漂移/不稳定性; 未使用因果推断框架, 也未处理观测假设违背下的估计器脆弱性.
 
-- **Franzke et al. (2026), "Estimating the Resilience of Non-Stationary Systems"** (arXiv:2604.24345)。提出基于 Langevin 方程回归形式化的方法, 在强季节性驱动等非平稳背景下估计地球系统分量 (如全球植被) 的韧性/稳定性, 可原生处理数据缺口、不规则采样、时变观测不确定性, 并可扩展到空间系统. 是传统自相关类韧性估计量的替代品, 核心仍是"经典临界慢化框架下的韧性指标", 不涉及因果推断, 也不将估计过程本身的不稳定性当作信号来源.
+- **Smith, Morr, Schötz, Boers (2026), "Estimating the Resilience of Non-Stationary Systems"** (arXiv:2604.24345; 作者更正见下方 2026-07-11 全文精读条目, 原条目误署名"Franzke et al.")。提出基于 Langevin 方程回归形式化的方法, 在强季节性驱动等非平稳背景下估计地球系统分量 (如全球植被) 的韧性/稳定性, 可原生处理数据缺口、不规则采样、时变观测不确定性, 并可扩展到空间系统. 是传统自相关类韧性估计量的替代品, 核心仍是"经典临界慢化框架下的韧性指标", 不涉及因果推断, 也不将估计过程本身的不稳定性当作信号来源.
 
 - **(2026), "Early Detection of Latent Microstructure Regimes in Limit Order Books"** (arXiv:2604.20949)。针对限价订单簿, 用三 regime (稳定→潜伏恶化→压力) 因果数据生成过程形式化"潜伏建立期"窗口, 结合多路互补信号 MAX 聚合、rising-edge 条件和自适应阈值构造触发式探测器, 在 200 次仿真中平均提前 18.6±3.2 个时间步、precision 接近完美地检测出压力事件, 优于经典变点检测和微观结构基线. 应用领域 (金融市场微观结构) 与机制 (多路原始信号触发探测, 非因果效应/因果图估计过程的不稳定性) 均与因果发现文献不同, 但概念上是"潜伏期早于可观测应激期存在预测窗口"这一元叙事在另一领域的实现.
 
 ## [idea-reviewer via codex second opinion, 2026-07-11]
 
 - **Laitinen, Lahti (2022), "Probabilistic Multivariate Early Warning Signals"** (arXiv:2205.07576)。提出用概率化 (贝叶斯/正则化) 向量自回归 (VAR) 模型作为多变量早期预警指标, 论证其相对传统单变量方差/自相关指标的优势在于更充分利用多变量信息、对参数的正则化处理及对不确定性的显式建模; 在多物种生态模型的仿真 benchmark 上验证检测灵敏度提升. 核心机制是概率 VAR 模型拟合过程本身的不确定性 (regularization/uncertainty treatment), 而非因果推断框架; 系统仍是经典 (慢变) 临界转换场景, 未处理快变强迫/非因果假设违背下的估计器脆弱性, 也未涉及因果发现方法 (PCMCI+/LKIF 等).
+
+## [deep-lit-tick --scope topic, 2026-07-11 iteration 2]
+
+<!-- 本轮 deep-lit-tick 第 2 次对本 topic 运行 (第 1 次已读 24 篇 + idea-scope 26 篇, 均在 already_read_ids 中去重). 本轮精读 34 篇 (5 轮, B4 饱和: 第 5 轮仅剩 1 篇独立候选 MOSAIC 且其 B7 反向扩展未产生任何新的、非已读、非切题的候选, 判定饱和). reader=claude(opus-4-8; 配置的 deepseek CLI claude-ds 本机未安装, 按 env 规则 fallback 到同接口的 claude). 每篇均有全文 wiki: $ARXIV_WIKI_DIR/<id>.md 含 "Read by: 0710-causal-scs". 核心结论: 本轮 34 篇中 0 篇构成 novelty 撞车 (最接近的 2511.04361 经全文精读证实为内部矛盾的空壳 workshop 摘要, 非真实竞品); 反而绝大多数 (>20 篇) 独立佐证了 idea 已冻结的 Stage-1 pilot 负面结果 (raw-state EWS baseline AUROC 0.919 远超因果 D/J 双通道 AUROC 0.428) 具有真实的方法论根源, 而非仅是仿真设置的偶然产物. 按主题分四组归档如下. -->
+
+### N. EWS 可靠性/观测量选择/不确定性谱系 (最大簇, Boers/Morr/Bathiany/Ashwin/Lohmann 研究群体, 与 idea 立场相反但高度互补)
+
+<!-- 本组 18 篇构成一个高度互引的紧密文献簇, 核心元问题与 idea 同构: "经典 EWS 指标的表观信号, 有多少是真实动力学、有多少是估计过程/观测选择的伪影?" 但本组一致选择"消除/校正/规避"这一混淆, 与 idea"保留并利用"的立场正好互补而非竞争。反引文网络在本轮末端已闭合 (2310.05587 反引文经核实全部落入已读集), 是本组饱和的直接证据. -->
+
+- **Hobden, Ritchie, Ashwin (2026), VAR multiscale EWS** (arXiv:2605.28260, R-Score 未评级). 首次为多尺度奇异 Hopf 分岔给出定量 VAR 特征值 EWS, 发现 non-leading eigenvalue 才携带正确失稳趋势 (leading eigenvalue 和 AR(1) 均误导). 撞车无: 追求"更准的特征值估计"而非"估计不稳定性即信号", 适用域 (慢强迫经典分岔) 与 idea (快强迫强对流) 相反.
+- **Suerhoff, Morr, Bathiany et al. (2026), 周期强迫振荡崩溃预警** (arXiv:2603.26537, R-Score A/18). 负结果: 经典 Floquet 乘子在慢强迫极限下指数趋零、无法预警; 提出相位漂移指标 (SVM+CV 验证). 方法论同构 (Stage-1 合成评测协议可复用), 撞车无.
+- **Ben-Yami, Skiba, Bathiany, Boers (2023), AMOC CSD 不确定性传播** (arXiv:2303.06448)。用官方观测不确定性集合 + 修正 B21 的代理生成方法论缺陷, 证明"必须做数据感知 null model", 是本课题坚持匹配 null 校准纪律的活案例. 撞车无.
+- **Ben-Yami, Boers et al. (2024 Sci Adv), tipping time 外推不确定性** (arXiv:2309.08521)。拆分建模/观测代表性/预处理三类不确定性, 证明崩溃时间外推可从 2050 跨到无穷, 但"探测是否失稳"本身相对稳健——为 idea pilot 选择判别式框架而非回归式外推提供支撑. 撞车无.
+- **Shin, Boers, Kug (2025), 观测-模式 AMOC CSD 对齐** (arXiv:2503.22111)。用 ΔMOV 指标对齐观测 (1990s 出现 CSD) 与 CESM2 (2040s 才出现) 的 50 年错位, 是 raw-state EWS baseline 在真实顶级 tipping 场景的胜利案例, 佐证 pilot 负面结果非偶然. 撞车无.
+- **Lohmann, Gottwald (2025), Fokker-Planck 观测量选择** (arXiv:2506.11735, R-Score A/18)。用反向 Fokker-Planck 次主导特征函数 (diffusion map) 构造最优 CSD 观测量, 明确承认准平稳假设对快速强迫系统失效——独立佐证 idea 放弃经典 CSD 框架转向强对流专属信号这一路线选择. 撞车无.
+- **Morr, Riechers, Rydin Gorjão, Boers (2024 PRR), 多维 Kramers-Moyal CSD** (arXiv:2308.16773)。漂移雅可比特征值负实部泛化方差/AC1 到时变/状态相关噪声, 是 2605.28260 同谱系更早先驱. 撞车无.
+- **Smith, Morr, Schötz, Boers (2026), Langevin 回归非平稳韧性估计** (arXiv:2604.24345; 更正: 此前 idea-review 阶段摘要级搜索误署名"Franzke et al.")。IRLS 稳健回归原生处理数据缺口/时变不确定性, NGRIP 案例部分推翻同一通讯作者 2018 年的正面 CSD 结论, 是"未校正采样偏差制造假阳性 EWS"的真实反例. 精读判定: 此前 novelty check 把本文归入"估计不确定性当信号"新颖性空间的判断不准确 (本文是诚实误差传播, 非追踪估计过程不稳定性), 建议下一版恢复相应新颖性空间的完整性. 撞车无, 立场相反.
+- **Boers 组 (2026), AMOC 崩溃时间预测批判** (arXiv:2604.20341)。系统性技术批判 DD23 (Nature Comm): 三次替代模型反转外推结论、bootstrap CI 实际覆盖率仅 0-45%、两个具体代码 bug 导致显著性反转. 其"结构证伪"实验设计 (平淡模型合成数据检验有趣模型是否误报) 可直接移植为 idea Stage-1 负对照模板. 是本课题已追踪的 Boers 组 AMOC 批判链条 (2303.06448→2309.08521→2603.26537) 最新一环. 撞车无.
+- **Liu, Morr, Bathiany, Blaschke, Qian, Diao, Smith, Boers (2025), 数据缺口扭曲 CSD 指标** (arXiv:2505.19034, R-Score S/22)。证明 λ_AC1/λ_Var 一致性几乎完全由首末数据点决定, 缺失值/异常值系统性偏置指标. 直接警示: idea 自己的 (D,J) 双通道联合 AUROC 也应检查是否受边界伪影主导, 且 idea 冻结 pilot 用的是无缺失干净模拟——可部分解释为何 raw-EWS baseline 分数偏高 (外部效度缺口, 建议下一版 refinement 标注). 撞车无.
+- **Morr, Boers, Ashwin (2023), 交叉耦合噪声欺骗性 CSD 趋势** (arXiv:2311.18597, R-Score S/23)。解析证明: 即使确定性动力学完全解耦, 噪声跨维度耦合可使 6 种独立 EWS 方法 (含 4 种"现代"方法) 全部给出方向相反的欺骗性趋势. 对 idea Stage-1 耦合 Lorenz 验证有直接警示: 因果效应不稳定性本身也可能是"观测到错误变量组合"的伪迹. 撞车无.
+- **Morr, Boers (2024 PRX), 红噪声 CSD 检测 ACS/PSD-fit** (arXiv:2310.05587)。联合拟合目标参数与 nuisance 噪声参数以分离真实失稳与红噪声伪影, 优于方差/AC1/GLSAR. **反引文核实显示该子方向 (CSD 鲁棒性/红噪声) 搜索已趋近饱和** (7 篇高相关反引文均已入库), 是本轮 B4 判定的关键证据之一. 撞车无.
+- **Lohmann (2025), AMOC 观测量选择与分岔时间外推偏差** (arXiv:2512.17142, R-Score A/20)。三箱 AMOC 模型证明: 看似自然的观测量测不到 EWS 信号, 正交"盐度化"变量才对齐; 正规型标度假设仅极靠近分岔才成立, 不同观测量给出方向相反的偏差. 撞车无.
+- **Shi, Serdukova, Zheng, Petrovskii, Lucarini et al. (2026), committor 几何 EWS** (arXiv:2603.08861)。基于 committor 函数的确定性 PDE 几何构造 EWS_geom, 弱噪声极限下与 log(MFPT) 渐近仿射, 强噪声/短窗口下仍可计算 (经典方差/AC1 因样本不足失效时). 与 idea 数据驱动因果估计器脆弱性诊断对偶 (信号来源相反: 真实分界面几何 vs 估计过程不稳定性), 应归入 EWS 元技巧家族"确定性 committor-几何路径"子类, 与 2605.28260"预测性 VAR-特征值路径"并列. 撞车无.
+- **Morr, Kuehn, Datseris (2025), 统一韧性指标计算框架** (arXiv:2509.19609)。7 种韧性概念统一为雅可比+吸引域几何定义, 核心发现不同韧性指标在不同转变机制下矛盾. 认识论起点与 idea 完全相反 ("已知模型" vs "未知模型+纯观测"), 可作仿真阶段零成本诊断/消融工具. 撞车无.
+- **Datseris, Lohmann, Hamilton, Haqq-Misra (2026), 高维系统 intermingledness** (arXiv:2604.09661)。IA-DBSCAN 聚类+intermingledness 指标区分"分岔诱导 tipping"(需低 intermingledness 诊断变量) 与"噪声诱导转变"(需高 intermingledness). 为解释 pilot 负面结果提供候选假说: saddle-node testbed 属分岔诱导型, raw-state 变量可能天然贴近最优判别特征, 因果效应波动未必与吸引域几何对齐. 撞车无.
+- **Datseris, Rossi, Wagemakers (2023), RAFM/Attractors.jl 全局稳定性延拓** (arXiv:2304.12786, R-Score A/20)。已知 ODE 前提下追踪吸引子吸引域分数, 是 2509.19609 的方法论源头, 可直接为 idea 耦合 testbed 计算吸引域分数 ground truth. 引用的 Schultz 2017 反例 (吸引域分数不保证平滑趋零) 为"单一 EWS 指标不可靠"提供独立证据. 撞车无.
+- **Enache, Kozak, Wunderling, Vollmer (2024), 鞍结分岔安全/危险 overshoot 边界** (arXiv:2401.07712, R-Score A/21)。严格推导 overshoot 深浅两种 regime 下 tipping 的解析安全/危险边界, 深越界时安全区远小于早期反平方根律预测. 直接回应 v2 review 指出的"control 轨迹缺少运行时未穿越验证、依赖经验参数试凑"的逻辑缺口, 其闭式边界公式可替代当前 0.28<0.385 经验参数构造方式, 为 Strongest Objection (matched controls 加入后信号可能消失) 提供更严格匹配轨迹对的构造工具. 撞车无.
+
+### O. 因果发现/时序因果方法新增竞品与基础设施 (idea 核心方法轴的同期相关工作)
+
+- **Faruque, Ali, Zheng et al. (2026), TTCD transformer 非平稳因果发现** (arXiv:2605.08111, R-Score B/15)。非平稳注意力+去平稳化因子块+瞬时块无环约束, 在 5 数据集上大幅超基线. 代表"主动消除非平稳性以获得更准因果图"的主流立场, 恰为 idea"保留假设违背导致的不稳定性并当信号"立场的镜像对立面. 若被复用逐窗口重训练, 训练方差本身可能被误认成结构脆弱性信号——idea 现有五类混淆解释外的候选第六类. 撞车无, 建议引用作主流对照.
+- **Bi, Pan, Jiang, Sun, Ma, Wang (2025 NeurIPS), UnCLe 动态因果发现** (arXiv:2511.03168)。参数共享 TCN+事后置换扰动求真正动态因果图, TVSEM/ND8 合成基准正是 review 指缺失的 positive control regime, 可借用为 Stage-1 第三 regime. 撞车无 (求"估准"因果图 vs 求"估计不稳定性能否作信号", 二者正交).
+- **Das, Chakraborty, Maulik (2026), SC3D 两阶段可微分因果发现** (arXiv:2602.02830, R-Score A/19)。谱半径惩罚+2-cycle 惩罚精炼结构, 五类测试床全面对比 7 基线. 明确声明"显式时变因果图/在线设定"仍是 future work, 是同赛道最新论文 (2026-02) 亲口承认"窗口不稳定性量化为信号"仍是空白的直接文本证据. 撞车无, 是 novelty 论证的有力旁证.
+- **Thumm, Chen (2026), CausalTimePrior 干预时序先验** (arXiv:2603.11090, R-Score A/19)。regime-switching TSCM 生成器正是 review 指缺失的"已知真实 DAG 会变化的 positive control regime", 建议接入 Stage-1 作第二 regime. 撞车无.
+- **Thumm (2025), Causal Regime Detection in Energy Markets** (arXiv:2511.04361)。**精读后降级**: 全文仅 196 行, 无 Results/Experiments section, 摘要中性能声明被作者自己注释掉但结论段落同样声明原样保留 (内部矛盾), 结论明确承认"未来工作包括实证验证". R-Score Tier C 下限 (7/25), 不构成需要对比的 baseline. 此前 B7 反向扩展中因"causal regime detection"表述与本课题高度相似而被列为最高优先级候选, 全文精读后证实只是概念相似的空壳摘要, 非真实竞品——是本轮"标题诱导的假阳性撞车警报, 全文精读后排除"的典型案例.
+
+### P. 因果效应/SDE 可辨识性理论谱系 (更贴近姊妹课题 "Causal Discovery Uncertainty", 本课题背景素材)
+
+<!-- 本组 9 篇是一条独立的数理统计/可辨识性理论文献线 (OU 过程、图连续 Lyapunov 模型、SDE 参数可辨识性、因果表征学习), 多篇读者独立指出"更适合姊妹课题 Causal Discovery Uncertainty, 而非本课题"。全部与 idea 核心 claim (有限样本滑窗因果估计脆弱性经验诊断) 不撞车, 因为它们关注总体层面模型可辨识性理论而非有限样本估计过程本身。 -->
+
+- **LIACS Leiden (2026), OU 过程因果边符号可辨识性** (arXiv:2603.08311, R-Score S/24, UAI 2026)。放松扩散矩阵已知假设, 证明符号可辨识/不可辨识/部分可辨识三分类. 隐变量导致的结构性不可辨识是现有五类混淆外的候选第六类. 撞车无.
+- **Guan et al. (2024), APPEX 边际快照 SDE 识别** (arXiv:2410.22729, R-Score A/21, JMLR revision)。证明线性 SDE 在仅边际快照观测下几乎总可识别, 但假设 SDE 参数全程恒定——与 idea 恰要捕捉参数漂移本身近乎对立. 撞车无.
+- **ICLR 2025, 签名核 CI 检验 SigKer** (arXiv:2402.18477)。路径空间首个不依赖密度存在性的一致 CI 检验, 证明环存在时完整图发现信息论不可能. 撞车无, 可作黑盒统计量补充方法分歧对比集.
+- **Recke, Hansen (2026), 图连续 Lyapunov 模型可辨识与估计** (arXiv:2603.17142)。非高斯噪声+高阶累积量可使 M (因果图) 可辨识到公共比例因子; 可辨识不等于小样本好估计. 撞车无.
+- **ICLR 2026, 干预 SDE 可辨识性** (arXiv:2505.15987)。r 个干预识别漂移矩阵的精确界; 证伪了 APPEX 反引文线索——未把可识别性推广到临界转变场景. 撞车无.
+- **Wang et al. (2026 NeurIPS preprint), 潜在 SDE 可辨识性 (扩散偏移)** (arXiv:2606.28228)。两环境扩散协方差方差比互异即可识别隐坐标到置换缩放; Hardanger 悬索桥真实数据跨种子验证, 是最贴近 causal-scs 真实数据验证阶段的方法论模板. 撞车无.
+- **Améndola, Boege, Hollering, Misra (2025), 图连续 Lyapunov 模型结构可辨识性** (arXiv:2510.04985)。GCLM 等价类严格加细贝叶斯网络 Markov 等价类, 结构可辨识率 96.9% (n=6) 远超 8.1%. 撞车无, 对姊妹课题更相关.
+- **Fan, Zhang, Cheng (2026 ICML), TRACE 连续机制演化轨迹恢复** (arXiv:2601.21135, R-Score S/22 边界)。K 个 atomic mechanism 概率单纯形连续凸组合替代离散切换; K_active 增大时"结构学错"与"分解阶段几何病态"两种失效清晰分离, 其对照消融范式直接回应 review 中"因果估计器不稳定性是否优于同复杂度非因果模型"的未解缺口. 撞车无 (需训练时已知纯域标签, 与强对流场景不符).
+- **NeurIPS 2026 投稿, MOSAIC 稀疏加性模块发现** (arXiv:2605.05524)。两阶段稀疏加性时序 VAE, regime-association 是全数据集一次性静态分类, 无滑动窗口轨迹, 与 idea (D,J) 双通道非同类客体. 撞车无, Stage-1-only VAE 可作非因果脆弱性基线.
+
+### Q. EWS 失败模式新增证据 (非因果领域, 加固"经典指标结构性失效"动机)
+
+- **Truong, Truong (2026), Entropy Collapse 普适失效模式** (arXiv:2512.12381)。证明反馈放大系统的熵坍缩是一阶 (不连续) 相变, 经典 CSD 框架结构性失效 (无预警). 精读发现可信度瑕疵 (自指引用、S2/正文引用数不一致), 仅引用可独立验证的解析定理. 独立支持 idea"不假定经典临界慢化"的立场, 其 Remark 承认 CSD 对 fold 型二阶转换仍适用, 恰解释 idea pilot 中 fold testbed 上 raw EWS 高达 0.919 的结果. 撞车无.
+- **Goltsev, Dorogovtsev (2026), 网络渗流 susceptibility EWS** (arXiv:2602.10060, R-Score A/19)。观察者节点 susceptibility 在渗流临界点发散, 推广到 k-core 崩塌/相依链路网络. 研究对象、驱动机制 (缓变准静态 vs 强对流快强迫) 均不同, 是经典 CSD 范式的严谨范例, 可作背景引用划清边界. 撞车无.
