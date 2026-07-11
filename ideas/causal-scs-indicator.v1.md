@@ -27,59 +27,60 @@ workspace: workspace/causal-scs-indicator/
 
 ## Novelty
 
-- Score: 4/10
+- Score: 3/10 (Claude 初评 4/10, codex second opinion 3/10, 合并取更严格的 3 — codex 补充发现的第四篇前作进一步压缩了新颖空间)
 - Closest prior work:
   1. Bian, Wang, Leng, Lin, Shi (2025), "Utilizing Causal Network Markers to Identify Tipping Points ahead of Critical Transition" (arXiv:2412.16235, *Advanced Science*) — 用 Granger causality / transfer entropy 构造的因果网络 marker (CNM) 作为分岔早期预警信号, 理论证明 (线性化+特征值分解) 系统趋近分岔点时 dominant-group→non-dominant-group 方向的因果强度确定性趋于 0, marker 相应发散. 在基因/生态/Turing 三类 benchmark 及癫痫 iEEG 真实数据上验证, 优于传统 DNB (方差/自相关) 指标.
   2. NPG (2026), "Quantitative Comparison of Causal Inference Methods for Climate Tipping Points" (原预印本 EGUsphere-2025-6258) — 直接在合成分岔动力学数据 (AMOC-北极海冰) 上比较 PCMCI / LKIF / GCSS 三种因果方法, 核心发现之一是"当分岔事件落在分析窗口内时, 所有方法都可靠地失效" —— 即跨方法失效/分歧现象在气候临界点场景下已被观测到, 但被当作方法局限性 (需规避), 而非可用信号.
   3. Ruiz et al. (2026), "Causal-Audit" (arXiv:2604.02488) — 把假设违背 (含 confounding proxies) 量化为校准风险分数, 用于决定是否信任/弃权因果推断结果, 与本 idea"利用违背程度做正向信号"方向相反但机制邻近.
-- Key differentiator: (a) 应用场景 (中尺度强对流风暴, 小时级快变) 相对于三篇前作 (基因/生态/癫痫慢变系统; AMOC/海冰十年际尺度) 确实是新的, 目前未查到严格意义上的先例; (b) 概念上, 本 idea 假设的机制是"因果估计过程本身在假设违背 (confounder/non-stationarity) 下的统计不稳定性携带信号"(认识论/统计机制), 区别于 CNM 的"真实因果强度确定性趋于 0/发散"(动力学机制) —— 这是可以立住的机制差异, 但当前 idea 稿完全没有引用/讨论这两篇论文, 也没有明确论证两种机制的可分性, 使得"新颖"目前只是潜在的, 尚未被 idea 自身证成. Stage 1 (Lorenz+参数漂移+PCMCI+ 滑动窗口) 的 pilot 设计与 NPG 论文已做的合成分岔实验高度相似, 后者已经报告了方法失效/分歧现象, 削弱了 Stage 1 阳性结果的信息增量.
+  4. Yu, Liang (2026), "SpatioTemporal Causal Network Diagnostics for Geographic Tipping Point Early Warning" (arXiv:2606.17553, 由 codex second opinion 发现, 已通过 arxiv-tools 核验存在) — ST-CND 框架用 transfer entropy 推断空间因果网络拓扑 + dynamic mode decomposition 估计局部恢复率, 结合"高内部波动/高内部同步/低外部耦合"三 signal 识别最脆弱子网络, 在合成分岔数据及 Indo-Pacific SST / AMOC 真实观测数据上验证 (AMOC AUROC 0.783). 进一步说明"因果网络诊断类早期预警"是一个 2025-2026 年正活跃的研究谱系, 而非空白领域.
+- Key differentiator: 目前仍未被上述四篇前作直接覆盖的点, 是把"因果估计器本身对窗口/方法/假设违背的敏感性"(而非因果强度、网络拓扑或恢复率) 当作快变中尺度强对流的预事件信号. 但这一差异目前只是潜在的 empirical finding, 尚未被 idea 自身证成 (未引用/讨论任何一篇前作, 未论证机制可分性); "把已有因果预警框架应用到强对流"本身不构成方法新颖性, 只有证明该脆弱性信号提供稳健、独立于经典 diagnostics 且有实际 lead time 的增量预警信息, 才可能形成新贡献.
 
 ## Quality
 
-评估视角: topic (`topics/0710-causal-scs.md`) 未声明 `target-venue` 或 `preferred-contribution-types`, 也无 `## Target venues` / `## Review standards` 小节, 按大气科学 + 因果推断交叉的应用型研究标准推断 (如 AIES / npj Climate and Atmospheric Science / AI-for-science workshop 级别).
+评估视角: topic (`topics/0710-causal-scs.md`) 未声明 `target-venue` 或 `preferred-contribution-types`, 也无 `## Target venues` / `## Review standards` 小节, 按顶级大气科学 / Earth-system methods / AI-for-science 视角推断评估 (Claude 与 codex 一致).
 
 | Dimension | Score | Notes |
 |-----------|-------|-------|
-| Logical gaps | 5/10 | 核心断言"估计不稳定性系统性增强"目前只是类比经典 CSD 理论断言, 缺少类似 CNM 论文的解析推导支撑其机制; 更关键的是, 强对流启动是小时级快速非平衡过程, 而 CSD/EWS 理论的标准假设是慢速参数漂移接近平衡分岔 (Lorenz pilot 和癫痫、生态例子都是这一类), idea 的"strongest objection"字段只讨论了统计伪影问题, 完全没讨论这一尺度/机制不匹配问题——这是最容易被 hostile reviewer 抓住的漏洞. |
-| Missing evidence signals | 3/10 | idea 自身"Novelty quick-check"字段坦承跳过了检索 (诚实, 但证据缺口是真实的); 完整检索后发现三篇高度相关论文均未被讨论; 另外完全没有讨论 3km 分辨率数据在 15 天窗口下做滑动因果发现的样本量/统计功效可行性. |
-| Narrative | 5/10 | "开辟新诊断范式"的表述在已知上述前作后显得过度自信, 需要收窄为"验证/迁移已知现象到新领域, 并检验一个新机制假设". |
-| Venue contribution | 5/10 | 若能清晰做出与 CNM/NPG 的机制区分并在真实个例上复现, 仍具备发表价值 (应用型强对流预警诊断期刊/workshop 水准), 但当前差异化论证不足以支撑更高定位的贡献声明. |
-| Testability | 7/10 | Stage 1 pilot (Lorenz+隐藏驱动+参数漂移, Cohen's d>0.8 阈值, 平稳对照段) 设计具体、便宜、可执行, 是合格的最便宜证伪信号, 且有明确的失败判据. |
-| Outcome realism | 6/10 | Stage 1 结果基本可预期为阳性 (NPG 论文已在类似合成分岔实验中观察到方法失效现象), 这既降低了 Stage 1 风险也降低了其信息增量; Stage 2 真实数据复现的难度被低估, 尤其是排除"跨方法分歧只是反映已知环境场质量下降/观测噪声, 而非物理分岔临近"这一混淆的难度, idea 未给出具体的混淆排除方案 (仅提到 surrogate data IAAFT, 但未说明如何应对真实数据中的环境场质量变化)。 |
-| Contribution type compliance | n.a. | topic 未声明 `preferred-contribution-types`, 跳过. |
-| Overall Quality | 5/10 | 概念健全、pilot 设计务实, 但因未做检索导致的证据缺口、尺度/机制不匹配问题和真实数据混淆排除方案缺失, 综合评分中等. |
+| Logical gaps | 4/10 (Claude 5, codex 3, 合并偏严) | 核心断言"估计不稳定性系统性增强"缺少解析推导支撑其机制, 且未证明强对流启动满足慢参数漂移/局部平衡/临界慢化这组标准假设 (Lorenz pilot 建立不了这一桥梁, "strongest objection"字段完全没讨论这一尺度不匹配问题). codex 进一步指出: PCMCI+ 的条件依赖统计量与 LKIF 信息流并非同一量纲, "跨方法分歧"当前没有定义良好的距离/校准; 真实实验也未定义统计单位、窗口长度、严格预事件截断及事件间独立性, 重叠窗口直接算 Cohen's d 会产生伪重复和过窄不确定区间. |
+| Missing evidence signals | 2/10 (Claude 3, codex 2) | 除未讨论三篇 (现为四篇) 高度相关前作、未讨论 15 天窗口下滑动因果发现的样本量/功效外, codex 补充: 缺少匹配的"非平稳但不发生强对流"负对照、经典 EWS 与 CAPE/shear 等业务基线对比、原始变量漂移和数据质量基线、跨事件/季节/区域外部验证, 以及事件级 AUROC/校准/lead-time skill; 还需要区分 estimator fragility、真实网络变化、样本量下降、资料同化/观测变化四种可能解释, 目前均未涉及. |
+| Narrative | 4/10 (Claude 5, codex 4) | "开辟新诊断范式"表述过度自信, 且把 CSD、真实因果结构变化、算法失效三种机制混成一个故事, 低估了 CNM / ST-CND / NPG / Causal-Audit 已占据的叙事空间. |
+| Venue contribution | 4/10 (Claude 5, codex 3) | 现版本是已有因果方法与简单不稳定性统计量在新领域的应用, 单个合成系统加若干真实个例不足以支撑顶级 venue; 若能清晰做出机制区分并在大规模独立事件上取得令人意外的增量预警 finding, 才可能够格, 当前差异化论证不足. |
+| Testability | 5/10 (Claude 7, codex 5) | Stage 1 pilot 形式上具体、便宜、可执行, 但 codex 指出"相对平稳段 Cohen's d 未达 0.8"不是有力证伪门槛: 阈值任意, 平稳对照过弱, 且人为加入参数漂移+隐藏驱动后阳性结果几乎是设计产物 (design-guaranteed positive). 更严格的最低成本门槛应要求在相同样本量/漂移幅度/噪声谱下区分 tipping 与 matched non-tipping nonstationarity, 并使用严格预事件窗口. |
+| Outcome realism | 5/10 (Claude 6, codex 4) | Stage 1 阳性结果现实但信息增量低 (现象已被 NPG 部分观察到); Stage 2 同时要求真实事件复现、排除非特异非平稳性/数据质量混淆、获得独立于经典 diagnostics 的 skill、并跨不可直接比较的方法建立稳定分歧基线, 当前估计过于乐观. IAAFT 只能检验特定线性平稳 surrogate null, 不能单独排除非平稳混杂、资料质量变化或窗口泄漏. |
+| Contribution type compliance | n.a. | idea types = {empirical-finding, diagnostic}; topic 未声明 `preferred-contribution-types`, 跳过, 不触发 hard cap (Claude 与 codex 一致). |
+| Overall Quality | 4/10 (Claude 5, codex 4, 合并取平均后归入 4) | 核心直觉值得低成本检验, 但机制桥梁 (快变对流 vs 慢变 CSD 假设)、跨方法指标定义/量纲统一、负对照设计与真实数据混淆排除方案均未达到 top-venue proposal 的最低严谨度. |
 
 ## Contribution Drift (n >= 2 only; n=1 写 N/A)
 
-N/A (v1, 无上一版可比较)
+N/A (v1, 无上一版可比较; hard cap: no)
 
 ## Alternative Framing
 
-更锐利的框架: 不要笼统声称"因果效应不稳定性是强对流预警指标", 而应明确定位为"检验 CNM (2412.16235) 与 NPG (2026) 已经在慢变生态/气候系统中观察到的'因果推断在分岔附近失效/发散'现象, 能否迁移到快变中尺度对流系统, 以及'估计过程假设违背导致的统计脆弱性'(本 idea 机制) 与'真实因果强度确定性变化'(CNM 机制) 这两种解释能否被经验区分" —— 把已知"失败模式"显式反转为"信号", 并将对比对象明确设为这两篇最近前作而非笼统的"经典 EWS", 这样即使 Stage 1 结果预期为阳性, 论文的贡献焦点也落在"机制区分 + 新领域迁移"上, 而不是"发现现象本身".
+Claude 与 codex 的框架建议方向一致, 合并如下: 放弃笼统的"因果效应不稳定性是强对流预警指标"和未经证明的通用"分岔/CSD"叙事, 明确改写为"因果推断脆弱性 (estimator fragility) 作为强对流前 latent-process activation / regime-change diagnostic, 检验其是否能从 CNM/ST-CND/NPG 已覆盖的慢变生态/气候尺度迁移到快变中尺度对流系统". 具体做法: 预先定义经样本量校正和方法内标准化的 fragility score, 在严格预事件窗口中检验其相对于 CAPE/shear、经典 EWS、原始非平稳性和数据质量指标的增量预测价值, 并明确将对比对象设为上述四篇最近前作而非笼统的"经典 EWS". 该 framing 仍属于 empirical-finding+diagnostic, 把贡献焦点从已被前作覆盖的"因果网络也能预警"转向尚未成立的"估计失败具有事件特异信息"这一更窄但更可能立住的问题.
 
 ## Claims Discipline
 
 | Outcome | Supportable claim |
 |---------|------------------|
-| POSITIVE | 因果效应估计的统计不稳定性 (源自假设违背, 区别于 CNM 的因果强度确定性变化机制) 在强对流环境中是独立于经典状态变量 EWS 的预警信号, 且能从已知的慢变系统迁移到快变中尺度对流系统 |
-| NULL | 分岔点/事件前窗口与平稳对照窗口的不稳定性指标无统计显著差异, 现有分析未发现该信号在此新领域中的独立信息量 |
-| NEGATIVE | 观测到的不稳定性升高在 surrogate data 检验下无法与统计伪影/估计噪声区分, 或无法与 CNM 型确定性因果强度变化机制区分, 不能支持将其用作独立预警指标 |
+| POSITIVE | 在所评估的数据源、事件类型和 lead-time 范围内, 经事件级独立验证和匹配负对照后, 校准的因果推断脆弱性指标 (区别于 CNM 的因果强度确定性变化机制) 对经典环境 diagnostics/EWS 提供增量预警信息. 不能据此声称识别了真实因果结构、隐藏过程或物理分岔机制. |
+| NULL | 在预注册的方法、变量、分辨率和事件样本中, 未发现超越经典 diagnostics、原始非平稳性或数据质量指标的增量信息; 不能外推为所有因果方法或强对流类型均无此信号. |
+| NEGATIVE | 若信号仅在窗口包含事件后出现, 或可被匹配非平稳对照、样本量变化、资料质量指标或 surrogate null 解释, 则应结论为该 pipeline 中的不稳定性是非特异估计伪影, 不能作为独立预警指标; 不应扩张为"因果诊断普遍无用". |
 
-三档声明整体 bounded 合理, 但均依赖于 idea 能否清晰讲出与三篇前作 (尤其 CNM 与 NPG) 的机制/领域差异, 目前该论证在 idea 稿中缺失.
+三档声明经 codex second opinion 校正后更加 bounded (明确排除"识别真实因果结构/隐藏过程/物理分岔机制"等过度声称), 采用 codex 版本作为最终表述.
 
 ## Likelihood-Impact Matrix
 
-- Priority: Medium = Likelihood: Medium x Impact: Medium
+- Priority: Medium = Likelihood: Low x Impact: Medium
 - Numeric score for ideas.xml: 5
 - Rationale:
-  - Likelihood (Medium): Stage 1 pilot 大概率成功 (现象已被 NPG 在类似合成分岔实验中部分观察到, 技术路径清晰、成本低), 但 Stage 2 真实强对流数据复现依赖多个条件同时成立: 排除环境场质量混淆、在真实数据上获得干净的"事件前窗口", 以及说服审稿人这与 CNM/NPG 的机制真正不同而非重新包装——这些不是纯工程风险, 而是有实质不确定性的条件依赖, 故不到 High.
-  - Impact (Medium): 若真实数据成功复现且机制区分成立, 对"强对流预警"这一细分领域有清楚的发表价值 (新领域应用 + 机制澄清), 但因核心现象已被 CNM 与 NPG 分别从两个角度报告过 (因果强度确定性变化; 方法学失效于分岔), 很难达到"显著改变领域判断/开辟全新路线"的 Exceptional 量级, 更贴近"局部推进+诊断"的 Medium 描述.
-- 注: codex second opinion 未能获取 (见下方 Overall Comments), 以上 Likelihood/Impact 判断仅基于 Claude 单方评估, 无法核实是否存在跨模型分歧.
+  - Likelihood: Claude 初评 Medium, codex second opinion Low, **分歧 1 level**, 合并后取 Low — codex 指出的跨方法量纲不可比、Stage 1 falsifier 设计上近乎保证阳性 (design-guaranteed positive)、以及需要同时满足严格预事件窗口/匹配负对照/跨事件泛化/estimator-failure 事件特异性排除等多重条件, 这些是比 Claude 初评时更具体的额外风险点, 足以把 Likelihood 下修到 Low: 达成 top venue 结果依赖一个反直觉且高风险的真实数据结果, 而非常规工程补强.
+  - Impact: Claude 初评 Medium, codex second opinion High, **分歧 1 level**, 合并后维持 Medium (未采纳 codex 的 High) — 若最乐观条件成立, 确能为"failure-aware causal diagnostics"路线在强对流预警这一细分领域提供清楚贡献, 但鉴于 CNM/ST-CND/NPG 已经建立"因果网络类早期预警"这条研究线, 本 idea 即便成功也更接近"在已成形的研究线内做严格差异化 + 新领域迁移"而非"影响一条明确研究线"本身, 故保留 Medium 判断, 在此明确记录与 codex 的分歧.
+- 查表: Low x Medium = Medium (5).
 
 ## Overall
 
 - Priority: Medium
 - Score: 5
-- Comments: 核心 pilot 设计 (Stage 1 Lorenz) 务实且便宜, 但完整检索后发现 idea 声称的核心现象 (因果推断/网络 marker 在分岔附近失衡) 已被 arXiv:2412.16235 (确定性因果强度机制) 和 NPG 2026 (跨方法失效于分岔) 分别报告, 且 idea 完全未引用/讨论这两篇高度相关工作, 也未处理强对流"快变"与经典 CSD"慢变"理论假设之间的尺度错配问题; 建议下一版明确将自身定位为"机制区分 (统计脆弱性 vs 确定性因果强度变化) + 新领域迁移 (中尺度对流)", 并正面讨论尺度不匹配问题, 才能达到与已发表前作真正差异化的顶会/顶刊贡献水准. **Codex second opinion 未能完成**: 首次调用进程在 web-search 阶段中途异常终止 (无 output-last-message 产出, ps 确认进程已消失, 无报错回显); 按 dispatch_manual.md 规范重新调用后第二次明确报错 "workspace is out of credits", 判定为账户额度耗尽的基础设施故障而非可重试的瞬时问题, 故本轮 review 仅基于 Claude 单方评估, 未获得跨模型交叉验证.
+- Comments: 核心 pilot 设计 (Stage 1 Lorenz) 务实且便宜, 但完整检索 (含 codex second opinion 补充发现的 ST-CND, arXiv:2606.17553, 已通过 arxiv-tools 核验) 显示, idea 声称的核心现象已被至少四篇 2024-2026 年前作从不同角度覆盖 (CNM: 确定性因果强度机制; NPG: 跨方法失效于分岔; Causal-Audit: 假设违背风险评分; ST-CND: 空间因果网络+恢复率诊断), 且 idea 完全未引用/讨论任何一篇, 也未处理强对流"快变"与经典 CSD"慢变"假设之间的尺度错配问题. codex 进一步指出 Stage 1 的 Cohen's d 门槛是弱证伪设计 (design-guaranteed positive), 且缺少匹配负对照、业务基线对比和事件级验证, 这些补强了 Claude 初评的判断并把 Quality 各维度评分进一步下修. Claude 与 codex 在 Likelihood-Impact Matrix 的两个轴上各有 1-level 分歧 (Likelihood: Medium vs Low; Impact: Medium vs High), 已在上节分别说明合并依据; 最终查表结果恰好与仅用 Claude 初评时的 numeric score 一致 (均为 5), ideas.xml 分数不变. 建议下一版明确定位为"causal estimator fragility 作为 latent-process-activation 诊断 + 新领域迁移", 并正面处理尺度不匹配、量纲统一、负对照设计三个问题, 才能达到与已发表前作真正差异化的顶会/顶刊贡献水准.
 
 </review>
