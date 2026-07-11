@@ -38,6 +38,6 @@
     <one-line>piloting: 1D Poisson u* vs delta_u 表达式树深度对比.</one-line>
   </workspace>
   <workspace slug="causal-scs-indicator">
-    <one-line>v2 pilot NEGATIVE：L4 上 256 对 matched fast/slow 轨迹中，离散族 AUROC 0.392、突变族 0.517、联合 0.428，均低于 raw EWS 0.919；真实数据投入前须由 PCMCI+/LKIF 在两个 synthetic regimes 通过双族 stop gate。</one-line>
+    <one-line>v3 pilot：真实 PCMCI+ 双 regime gate 已跑通 (CPU, tigramite)——已知图变化正对照验证装置有效 (causal 0.786/non-causal 0.849)，但 fragility regime 中 causal (PCMCI+) 联合 AUROC 仅 0.482 (chance)，同复杂度 non-causal marginal-corr 达 0.705，均远低于 raw EWS (0.890)；LKIF 与真实数据仍待下一轮。</one-line>
   </workspace>
 </workspaces>
