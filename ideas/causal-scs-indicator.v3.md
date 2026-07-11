@@ -46,3 +46,87 @@ workspace: workspace/causal-scs-indicator/
   4. Baselines: 保留 v2 全部 (CAPE/shear、raw EWS、RCDyM/TIPMOC、CNM/ST-CND、Causal-Audit/PLaCy、稳健 change detector), 加本轮非因果基线与正对照 regime 为标准配置。
 - Assets status: Stage 1/1.5 均已跑通并提交; LKIF 与真实小时序列下载仍在 stop gate 之后, 详见 `workspace/causal-scs-indicator/data/MANIFEST.md`。
 </added-on-refine>
+
+<review date="2026-07-11">
+
+## Novelty
+
+- Score: 4/10 (Claude 与 codex 独立评分一致, 均为 4/10)
+- Closest prior work:
+  1. Yu, Guo, Luk, RCV-PCMCI/VarLiNGAM (arXiv:2410.19412) 与 VCDF (arXiv:2602.21381) — Consistency/Variability 跨折统计量与 (D,J) 数学同源, 用途相反 (过滤噪声 vs 提取信号); VCDF 结论明确承认"真实结构变化时跨折不一致可能反映真实变化"但从未验证, 已通过全文 wiki 精读核实.
+  2. Adedayo, conditioning-depth graph instability (arXiv:2606.01214, MEDIUM 撞车, 已全文核验) — 同一问题空间 (潜在混淆/隐藏记忆诊断, 不恢复潜在图), 不同扰动轴 (conditioning depth 而非时间窗口).
+  3. Faltenbacher/Wahl/Herman/Runge, PC 系方法 coherency score (arXiv:2502.14719) — PCMCI+ 团队本人提出的零额外成本自洽诊断, 复用 CI 检验日志.
+- Key differentiator: 方法本身 (跨扰动轴的图/效应不稳定性度量) 不新, RCV/VCDF/2606.01214/2502.14719 均已各自覆盖过"用不稳定性做诊断"这一元技巧的一部分; v3 剩余的窄差异是把扰动轴换成滑动时间窗口, 并将其与严格预事件判别及 causal-vs-marginal conditioning penalty 联系起来。若"条件化在预事件阶段系统性损失信号、但在事后已知结构变化阶段不损失"这一发现能在受控 factorial testbed、多个估计器和真实事件上复现, finding 本身可能新颖; 但目前的两-regime pilot (见 Quality/Logical gaps) 尚不能建立该发现, 只能算作一个有潜力但未坐实的假设。
+- **过程诚信问题 (Claude 与 codex 独立核验一致)**: `REFINEMENT_LOG.md` 声称 v2 review 中"tvVAR-EWS (2205.07576) and coherency score (2502.14719) not yet in the novelty narrative"这条 concern 已被"Both now cited explicitly in v3's novelty quick-check"解决, 但 grep 核验显示 v3.md 全文既不包含 "2502.14719" 也不包含 "2606.01214" (v2 review 原文实际点名的是 2606.01214, 而非 2502.14719 — REFINEMENT_LOG 转述阶段已经张冠李戴)。v3 novelty quick-check 确实新增了 2205.07576 与 2605.28260 两处引用, 但 2606.01214 (MEDIUM 撞车) 与 2502.14719 (与 D/J 设计直接相关) 均未进入 v3 任何位置的叙事。这是一个被 refiner 自己的 changelog 误报为"已解决"的真实遗漏, 建议下一版必须实际补上而非仅在 changelog 里打勾。
+
+## Quality
+
+评估视角: 沿用 v1/v2 review 的推断 — topic (`topics/0710-causal-scs.md`) 未声明 `target-venue` 或 `preferred-contribution-types`, 也无 `## Target venues` / `## Review standards` 小节, 按顶级大气科学 / Earth-system methods / AI4Science 视角评估 (Claude 与 codex 一致)。
+
+| Dimension | Score | Notes |
+|-----------|-------|-------|
+| Logical gaps | 4/10 (Claude 初评 6, codex 3, 采纳 codex 更具体的核验后合并偏严) | codex 的核心指控成立且经 Claude 独立复核确认: 两个 regime 同时改变了非线性形式、隐藏驱动、第三变量作用、效应大小、窗口/lead/lookback 参数和 pre/post 方向, 因此 −0.222 (Regime 1) 与 −0.064 (Regime 2) 的差异**不能**被干净地归因于"预事件 forecasting vs 事后 detection"或"条件化本身丢弃信息"——没有固定边 (fixed-edge) 的 partial-correlation 消融来单独隔离"条件化"这一个变量, PCMCI+ 与 marginal Pearson 还同时在父集搜索、显著性筛选和统计复杂度上不同, "同复杂度基线"这一说法只在变量/窗口/校准协议层面成立, 不在检验统计量复杂度层面成立。另一处独立核验确认的问题: v3 Pilot 的 Metric 段写"六项预注册门槛不变", 但同一段紧接着把联合门槛的强制性 (原 AUROC≥0.75 且须比 raw EWS 高 0.05) 拆解为非强制的"存在性 vs 增量"两级判定——这是对"冻结门槛"表述的自我矛盾, 使得 Regime 1 non-causal "联合=0.705 通过存在性门槛"这一表述在原六项标准下其实是不过关的 (J=0.631<0.70, 联合=0.705<0.75)。Claude 独立复核 `pilot_pcmci_gate.py` 的 Regime 2 窗口选取逻辑后确认 codex 指出的第三点: `direction="post"` 时 mask 允许 `ends∈[1110,1900]`, 对应 `starts∈[960,1750]`(window=150), 而 switch=1100, 故 starts∈{960,1000,1040,1080} 对应的窗口会跨越 switch 时刻本身 (窗口同时含 switch 前后数据), 并非严格"事后"窗口, 弱化了 Regime 2 作为"装置有效性"正对照的说服力。 |
+| Missing evidence signals | 4/10 (Claude 初评 5, codex 3, 合并偏严) | codex 补充的具体缺口清单成立: 多 seed 复现 (当前 Regime 1/2 均为单 seed 点估计, 无法区分"这个差异"与"这个 seed 的抽样噪声")、两阶段 (calibration+evaluation) bootstrap、causal-minus-noncausal 差值本身及跨 regime interaction 的正式置信区间/假设检验、fixed-edge marginal-vs-partial 消融、效应量 (0→0.6 系数跳变大小) 扫描、更不易分的 graph-change 正对照、LKIF、真实阶段事件数/功效/storm-system 去重均未完成。此外 codex 指出一个此前两轮 review 都未注意到的细节: Stage-1.5 的 "raw EWS" 实际只是滚动方差均值 (`raw_ews_profile` 只用 `.var(axis=0).mean()`), 并非 v1/v2 承诺的完整 variance+autocorrelation 复合基线, 这意味着 0.890/1.000 这两个 raw-EWS 数字本身可能低估或高估了完整 baseline 的真实强度, 需要在下一版明确标注这一简化。 |
+| Narrative | 6/10 (Claude 7, codex 6, 合并偏 codex) | "适用边界图"确实比原先单一预警成败叙事更锋利, 也诚实保留了 causal 负结果, 是本轮最大的叙事进步; 但如 codex 所指, "条件化丢弃信息""正对照排除装置无效"和"正对照中不再丢信息"三处表述均超出当前两-regime、单 seed、多因子混杂设计实际能支撑的强度, 属于叙事领先于证据。此外见 Novelty 段: 2606.01214 (MEDIUM 撞车) 仍未被纳入差异化论证, 是本应但尚未完成的叙事补丁。 |
+| Venue contribution | 4/10 (Claude 与 codex 一致) | 目前仍是标准 PCMCI+、Pearson 相关、滚动 SD/极差与百分位校准 AUC 的探索性组合, 应用于两个纯合成 testbed。作为 pilot 阶段的探索性证据有价值, 但顶级 Earth-system/AI4Science 稿件至少需要受控的 (仅条件化一个变量的) factorial 边界图、跨估计器 (含 LKIF) 复现与真实强对流外部验证, 目前均未达到。 |
+| Testability | 6/10 (Claude 初评 8, codex 6, 采纳 codex 下修) | codex 指出一个 Claude 初评遗漏的关键点: 声称"最便宜的下一步证伪是同协议跑 LKIF (3-5 天)"并非真正最便宜的选项——用现有约 210 秒的协议做多 seed 重跑并传播 calibration 抽样不确定性, 比实现一个新估计器 (LKIF) 更便宜, 也更直接地回答"当前 0.705/0.482 这两个点估计本身有多稳"这一先决问题, 应作为比 LKIF 更优先的下一步。此外"六项预注册门槛不变"与实际采用的存在性/增量拆分判定之间的表述冲突 (见 Logical gaps) 也削弱了"预注册可信度"这一 testability 子维度。可取之处 (Claude 与 codex 一致): 代码、JSON、日志三者互相核验一致, 数字无虚报, 计算成本确实低廉。 |
+| Outcome realism | 4/10 (Claude 5, codex 4, 合并) | 存在性/增量拆分门槛的方向是现实的合理改进, 但按 v2 冻结的原六项标准, 本轮实际没有任何 (估计器×regime) 单元格完整通过 (non-causal Regime 1 的 J 与联合均不过原阈值), 把 0.705 直接称为"通过存在性门槛"是在门槛本身刚被放宽之后才成立的, 应标注为 exploratory/result-informed 而非预注册阳性。真实数据阶段还需要跨区域验证、事件数/功效达标、多重比较校正, 累积起来仍是一个依赖多个乐观条件同时成立的目标。 |
+| Contribution type compliance | n.a. | idea types = {empirical-finding, diagnostic}; topic 未声明 `preferred-contribution-types`, 跳过, 不触发 hard cap (Claude 与 codex 一致)。 |
+| Overall Quality | 4/10 (Claude 初评 6, codex 4, 采纳 codex 后下修) | v3 的确做了真实且诚实的额外实验 (真实 tigramite PCMCI+ 而非 v2 的 VAR proxy, 数字均核实无虚报), 填上了两个 v2 明确要求的缺口 (非因果基线、正对照 regime), 这些执行层面的进步是真实的。但经 codex 更细致的核验并被 Claude 独立复核确认后, 当前"因果条件化系统性丢弃预测信号但不丢弃事后信号"这一核心新结论建立在一个多因子混杂、单 seed、门槛表述自相矛盾、正对照部分泄漏 (窗口跨越 switch 点) 的实验设计之上, 尚不足以支撑其被当作稳固发现来叙述, 只能视为一个值得用更受控设计验证的假设。 |
+
+## Contribution Drift (n >= 2 only; n=1 写 N/A)
+
+- v_{n-1} (v2) contribution types: {empirical-finding, diagnostic}
+- v_n (v3) contribution types: {empirical-finding, diagnostic}
+- Status: unchanged
+- Hard cap triggered: no (topic 未声明 `preferred-contribution-types`, 且不存在 method/theory 的无理由删除; Claude 与 codex 一致)
+
+v2 review concern-by-concern 复核 (Claude 与 codex 独立复核后合并, 采纳 codex 更严格的判定):
+
+| v2 concern | Status | Assessment |
+|---|---|---|
+| (D,J) 联合非逻辑必然 | partially resolved | C2 已降为 stretch claim, 但 C1a 仍把结果笼统写成"(D,J) 存在性", 而实际只有 non-causal 的 D (0.735) 过 0.70, J (0.631) 未过, 更准确的表述应是 D-family-specific, 而非笼统的"通过存在性门槛"。 |
+| 跨方法 percentile 可比性未证明 | partially resolved | PCMCI+ 已实际运行, 但 LKIF 仍未运行; 校准百分位的跨方法语义等价性、以及 calibration 抽样误差, 仍未验证。 |
+| 缺同复杂度非因果 baseline | partially resolved (较 v3 body 自述的"resolved"更保守) | baseline 已用真实代码跑出结果, 但 Pearson 与 PCMCI+ 只在变量/窗口/校准协议层面"同复杂度", 并未隔离"条件化"这一单一变量 (二者还在父集搜索、显著性筛选、检验统计量复杂度上不同), 尚不足以支撑"条件化本身丢弃了信息"这一因果归因。 |
+| control 未做运行时未穿越断言 | resolved | 已读代码确认 `assert not not_crossed.any(axis=1).any()` 存在且逻辑正确, 0/128 control 穿越, Claude 与 codex 独立核验一致。 |
+| bootstrap 未传播 calibration-null 抽样不确定性 | ignored | REFINEMENT_LOG 如实标注为 deferred, 但当前 0.705 这一边缘性数字尤其需要此修正, 本轮继续强调。 |
+| 缺已知真实图变化正对照 regime | partially resolved | Regime 2 已实现并跑出数据, 但硬系数跳变 (0→0.6)、raw EWS=1.000、且约 4/20 个入选窗口跨越 switch 时刻本身 (经 Claude 独立复核代码确认), 使其作为"装置有效性"正对照的验证力有限, 只能弱支持"装置能响应非常明显的二阶分布变化", 不能充分支持"装置对真实结构变化普遍敏感"。 |
+| 尚无官方 PCMCI+/LKIF gate 复现 | partially resolved | 真实 PCMCI+ 已运行, 但 LKIF 未运行; 脚本 docstring 明确 Stage-1.5 只是单标量摘要, 非完整冻结 v2 多统计量 profile。 |
+| 真实阶段事件数/功效/storm dedup | ignored | 仍无数字或执行结果, REFINEMENT_LOG 如实标注为 deferred。 |
+| 联合需超 raw EWS 0.05 在高 raw-EWS regime 不现实 (codex v2 算术) | partially resolved | 存在性/增量拆分的方向合理, 但不能追溯性地把本轮 0.705 改判为"冻结门槛"下的阳性 (见 Logical gaps), 该拆分应作为下一版预注册的新规则, 而非本轮回溯性重新解释。 |
+| Alternative Framing: 适用边界图 | resolved | v3 body 已明确采用, 但当前两个高度混杂的 regime 尚不足以构成真正的"图" (只是两个点)。 |
+| tvVAR-EWS (2205.07576) 未纳入 novelty narrative | resolved | v3 novelty quick-check 确已显式引用并区分该工作。 |
+| graph-instability diagnostic (2606.01214, v2 原文点名) 未纳入 novelty narrative | **ignored (REFINEMENT_LOG 误报为已解决)** | v3.md 全文不含该 ID, MEDIUM 撞车仍待正面区分, Claude 与 codex 独立 grep 核验一致。 |
+| coherency score (2502.14719) 应纳入叙事 | **ignored (REFINEMENT_LOG 误报为已解决)** | v3.md 全文不含该 ID, Claude 与 codex 独立 grep 核验一致。 |
+
+未采纳建议的 pushback 复核: "暂缓 LKIF 以避免仓促实现"作为工程排期决定本身有据, 但不能反过来支持"当前结论已可跨估计器泛化"这一言外之意 (v3 body 已注意克制, 未过度声称, 可接受); "Regime 2 仅作为 sanity check 而非严格正对照"这一目的定位合理, 但如上文所述, 其证据强度不足以支撑 C4 (测量有效性) 目前被赋予的分量, 本轮予以重新强调。two-stage bootstrap 与真实阶段功效分析的延期均无实质论据支撑其暂缓的必要性 (相比 LKIF 需要新实现, 这两项只需修改现有代码), 本轮继续强调应优先于 LKIF 完成。
+
+## Alternative Framing
+
+Claude 与 codex 的建议方向一致收敛为同一个更锐利的框架, 采用 codex 的具体表述作为主建议: 把主问题进一步收紧为 **"causal-conditioning penalty map"**——预注册核心估计量 Δ = AUC_conditional − AUC_marginal, 在一个仅改变 conditioning set (是否条件化)、phase (预事件 vs 事后)、graph-change 强度和 confounding 强度这四个因子、其余设计 (窗口、检验统计量复杂度、DGP 骨架) 全部固定的 factorial DGP 上, 正式检验 Δ 本身及其与 phase/confounding 强度的交互显著性; 强对流仅作为外部验证场景, 而非核心判决数据。这样得到的诊断仍属 empirical-finding+diagnostic, 不引入新贡献类型, 但比当前"两个高度混杂的 regime 直接对比"更能把观测到的 −0.22/−0.06 差异真正归因于"条件化"本身, 而不是归因于随 regime 一起变化的其余五六个因子。
+
+## Claims Discipline
+
+| Outcome | Supportable claim |
+|---------|------------------|
+| POSITIVE | 仅当完成多 seed 复现、两阶段 (calibration+evaluation) bootstrap、Δ (causal−noncausal) 及其与 phase 交互的正式假设检验, 且用 fixed-edge/factorial 消融隔离出"条件化"这一单一变量之后, 才可声称特定估计器在特定 DGP 下存在可复现的 conditioning penalty 或预事件脆弱性信号; 不得声称识别真实因果机制, 也不得在未超过完整 (variance+autocorrelation) raw EWS baseline 时声称独立预警价值。 |
+| NULL | 在预注册的估计器、窗口、DGP 和事件范围内, 未检测到稳定的 conditioning penalty 或增量脆弱性信息; 不能外推为所有因果发现方法或所有强对流情形均无信号。 |
+| NEGATIVE | 若 conditional 方法 (PCMCI+) 稳定弱于 marginal (Pearson) 方法, 可如实报告"该 PCMCI+ summary 统计量在所测两个 regime 中判别力弱于同窗口/同校准协议的边际相关基线"; 在完成 fixed-edge、同检验统计量复杂度的消融以真正隔离"条件化"这一变量之前, 不能写成"因果条件化本身丢弃了预测性信息"这一更强的因果归因表述——这是当前 v3 文本最容易被 hostile reviewer 抓住并要求降级的一句话。 |
+
+## Likelihood-Impact Matrix
+
+- Priority: Medium = Likelihood: Low x Impact: High
+- Numeric score for ideas.xml: 5
+- Rationale:
+  - Likelihood: Claude 与 codex 一致判定 Low, 无分歧。理由: 当前"conditioning penalty"核心对比只有单 seed 点估计, 无差值/交互的正式推断; 两个 regime 因多因子混杂而不可直接归因比较; 正对照 (Regime 2) 因硬跳变+部分窗口跨越 switch 点而接近平凡可分, 验证力有限; 按 v2 原冻结六项门槛衡量, 本轮实际没有任何 (估计器×regime) 单元格完整通过; LKIF、完整多统计量 profile、功效分析和真实事件验证均未完成。要达到 top-venue 级结果仍需要实质性的实验重新设计 (factorial 隔离设计), 而非常规工程补强, 这是 Low 而非 Medium 的关键理由。
+  - Impact: Claude 与 codex 一致判定 High, 无分歧。理由: 若最乐观情形成立——"conditioning penalty" 在严格受控的多 regime、多估计器 (含 LKIF)、真实强对流数据上都能稳定复现——它会直接回应 VCDF 作者自己承认从未验证的问题, 并给出"因果诊断目标 vs 预测/forecasting 目标"何时不一致这一清晰边界, 对"应该消除还是保留/利用因果估计不稳定性"这条活跃研究线有明确的叙事影响力; 但这仍是对一个已存在、他人已部分涉足的 niche 做精确定位, 而非颠覆性地开辟新方向或推翻强共识, 故不到 Exceptional。
+  - 两轴 Claude 与 codex 完全一致 (Low, High), 无 disagreement 需要标注; 与 v2 review 的 Low×High=5 数值和推导路径均一致 (v2 是基于"causal 未证明必要性"的假设性推断, v3 是基于"causal 在两轮独立测试——proxy VAR 与真实 PCMCI+——中均在 fragility regime 落入 chance"的实测结果, 结论方向一致但证据基础已从假设性变为部分实证性, 只是新实证本身因设计混杂而不够干净)。
+  - 查表: Low x High = Medium (5)。topic 无 `preferred-contribution-types` 声明, hard cap 不适用, numeric score 不截断。
+
+## Overall
+
+- Priority: Medium
+- Score: 5
+- Comments: v3 是一次执行诚实、数字可核验 (代码/JSON/日志三方一致, 无虚报) 的 refine, 真正跑通了 v2 明确要求的两项关键实验 (同复杂度非因果基线、已知真实图变化正对照), 并如实报告了对原始"因果"框架更不利的结果。但经 codex second opinion 更细致的代码级核验 (Claude 独立复核确认成立) 后发现, 当前最具吸引力的新结论 ("因果条件化丢失预测信号但不丢失事后信号") 建立在一个多因子混杂 (regime 之间同时变了六七个变量, 不只是"条件化")、单 seed、门槛表述前后不一致 ("六项预注册门槛不变" vs 实际采用的存在性/增量拆分)、正对照部分窗口泄漏跨越 switch 点的实验设计之上, 因此 Overall Quality 由 Claude 初评的 6/10 下修为合并后的 4/10。这不改变 Likelihood-Impact 判断——Low×High=Medium(5) 与 v2 完全一致——因为该判断本就建立在"多个高风险条件需要同时成立"这一前提上, 本轮新发现的设计缺陷进一步印证而非削弱这一前提。此外, REFINEMENT_LOG 存在一处被 Claude 与 codex 独立核验共同确认的误报 (声称已将 2606.01214/2502.14719 纳入 novelty 叙事, 实则 v3.md 中均不存在), 建议下一版 refine 时对 changelog 自述的核实要更严格, 并优先完成比 LKIF 更便宜的多 seed/两阶段 bootstrap 重跑, 再决定是否投入 LKIF 实现。
+
+</review>
