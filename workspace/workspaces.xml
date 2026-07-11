@@ -37,4 +37,7 @@
   <workspace slug="fex-prose-defect-correct">
     <one-line>piloting: 1D Poisson u* vs delta_u 表达式树深度对比.</one-line>
   </workspace>
+  <workspace slug="causal-scs-indicator">
+    <one-line>v2 pilot NEGATIVE：L4 上 256 对 matched fast/slow 轨迹中，离散族 AUROC 0.392、突变族 0.517、联合 0.428，均低于 raw EWS 0.919；真实数据投入前须由 PCMCI+/LKIF 在两个 synthetic regimes 通过双族 stop gate。</one-line>
+  </workspace>
 </workspaces>
