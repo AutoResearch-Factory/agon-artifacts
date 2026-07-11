@@ -64,3 +64,50 @@
 
 - **Ganesh, Beucler, DeMaria, Runge (2025), Multidata-PC SHIPS** (arXiv:2510.02050, R-Score S/24). 多数据 PCMCI 从 SHIPS 选因果预报因子提升 TC 强度预报. **撞车 LOW 且正交 (求稳路线). 核心可复用: pc_alpha 扫描 × 7 折的折间计频 = 现成的不稳定性度量装置 (本文阈值化求稳, 我们读取波动本身)**; 多数据范式可迁到多 SCS 个例.
 - **FuXi-Nowcast (arXiv:2512.08974)**. 环境→严重对流最强 DL nowcasting, **主动声明"这不是 physical/causal attribution"**—最有价值的立靶抓手 (撞车不成立: 它做预报系统, 我们做因果指标). 可复用候选因果变量池 (CAPE/CIN/TPW/wind divergence/bulk shear/dewpoint 梯度/θe)、CSI+neighborhood maxpool 验证协议、dryline CI/squall-line 个例. 动机: 引其自述局限论证"SCS 环境驱动的因果归因仍是开放问题, ablation-sensitivity ≠ causal".
+
+## [deep-lit-tick --scope idea causal-scs-indicator, 2026-07-11]
+
+<!-- 本轮 idea-scope deep-lit-tick 精读 26 篇 (4 轮, B4 饱和), 全部在 topic-level 24 篇之外; 由 dispatcher 汇总并入本文件 (idea-scope 规则不直接写 landscape). 每篇均有全文 wiki, 分组延续 idea 报告的"三支柱"结构. 详见 ideas/causal-scs-indicator-deep-lit-report-2026-07-11.md 的完整撞车矩阵. -->
+
+### H. 机制区分理论支撑 (支柱 a: "统计脆弱性 ≠ 确定性因果强度变化" 的困难程度)
+
+- **Shah & Peters (2020 Annals of Statistics), GCM / No-Free-Lunch** (arXiv:1804.07203). 证明**任何非参数条件独立性检验在假设违背下都不可能同时保持 well-calibrated 且有功效** (Theorem NFL) —— 给"因果估计器在假设违背下天然不稳定"提供第一性原理依据, 而非本 idea 的临时假设. 撞车 LOW (纯理论工具), 但是三篇理论支撑之一, proposal 必引.
+- **Rabel & Runge (2025), HCCD context-specific 因果图发现** (arXiv:2511.21537). **Impossibility Result B**: 在无观测 context 下, "因果强度变化"与"检验统计量固有不稳定"在一般条件下不可判别分离. 把本 idea"机制区分"支柱从经验断言升级为已知困难问题, proposal 需正面承认此边界而非回避. 撞车 LOW-MEDIUM (理论工具非直接竞品).
+- **He, Pogodin, Li, Deka, Gretton, Sutherland (2025), Hardness of CI Testing in Practice** (arXiv:2512.14000). **Type-I 误差膨胀定理**: 有限样本下 CI 检验的名义显著性水平系统性失真, 为"观测到的不稳定性是回归/检验伪影"这一竞争解释提供精确的排除工具 (可反过来证明信号不是纯伪影). 撞车 LOW.
+- **Bergen, Sejdinovic, Didelez (2026), GKCM (Generalised Kernel Covariance Measure)** (arXiv:2604.03721). 联合嵌入版 GCM 的 Type-I 膨胀分析, 补齐"有限样本伪影"证据链第 4 种机制. 撞车 LOW.
+- **Faller, Vankadara, Mastakouri, Locatello, Janzing (2023), Self-Compatibility** (arXiv:2307.09552). 提出 self-compatibility 作为无 ground-truth 时评估因果发现的框架 —— **本 idea"估计脆弱性"概念的形式化语言来源**, 也是 novelty check 最初标记的最大风险点 (若已扩展到时序场景则直接撞车). 撞车 LOW-MEDIUM.
+- **Jahn & Janzing (2026), Evaluating Bivariate Causal Statements via Mutual Compatibility** (arXiv:2606.00278). 将 self-compatibility 扩展到双变量因果陈述评估, **仍限于 iid/横截面场景, 未触及时序/滑动窗口**——独立确认 novelty 最大风险点未被占据. 撞车 LOW.
+- **Schkoda, Faller, Blöbaum, Janzing (2024), Leave-One-Variable-Out (LOVO) 交叉验证** (arXiv:2411.05625). 提供另一个 self-compatibility 谱系的自评指标 (LOVO cross-validation error), **第二篇独立确认该谱系未扩展到时序**, 同时给出候选 fragility 自评量. 撞车 LOW-MEDIUM.
+- **Nanavati, Vreeken, Kaltenpoth (2026), StruBI (Structural Bias Identification)** (arXiv:2606.18834). 用 average markov interventions (AMI) + 祖先覆盖率区分混杂偏差与选择偏差来源. 可作机制区分 (confounding-driven vs selection-driven instability) 的候选判据. 撞车 LOW-MEDIUM.
+
+### I. 快慢尺度错配新增混淆源 (支柱 b: 威胁加剧, 须新增负对照)
+
+- **Ritchie, Bastiaansen, von der Heydt, Ashwin (2025), coupling and timescales for interacting tipping elements** (arXiv:2509.03996). 揭示 **UaDB (unequal-and-different-basins) regime 下, 几何/时间尺度本身即可导致因果方向系统性误判**——独立于任何统计噪声的第 5 种混淆渠道, 是 arXiv:2506.01981 (topic-level 已读, "本轮威胁最大") 的姊妹篇. Proposal 必须新增此负对照. 撞车 LOW (机制威胁而非竞品占位).
+- **Li, Zhu, Zhao, Zhao, Zhang, Duan, Lin (2026), RCDyM (Reservoir Computing + Dynamical Measures)** (arXiv:2603.14944). 目前最全面的非因果 EWS baseline (整合多种动力学指标 + reservoir computing 超前预测). 其局限本身印证: **即便最前沿的非因果方法也未解决快慢尺度错配问题**, 侧面支持本 idea 仍有空间, 但也是须超越的强 baseline 之一. 撞车 LOW.
+- **Masuda (2026), Detecting tipping points from sample variance alone** (arXiv:2602.10817, TIPMOC). 纯方差幂律标度检测分岔, 提供第 5 个稳健经典 EWS baseline, 附带**无分岔负对照设计模板**可直接复用. 撞车 LOW.
+- **Montagna, Mastakouri, Eulig, Noceti, Rosasco, Janzing, Aragam, Locatello (2023), score-matching 假设违背鲁棒性 benchmark** (arXiv:2310.13387). 系统评测多种假设违背下 score-based 因果发现的鲁棒性, 核心发现: **non-iid (而非分岔临近本身) 是唯一能让几乎所有因果发现方法同时崩溃的场景**——独立于分岔的第 5 种混淆源, proposal 须设计负对照排除. 撞车 LOW-MEDIUM.
+
+### J. 须超越的 robust baseline (支柱 c: 名单扩至 5 篇)
+
+- **Tusoni, Masi, Coletta, Glielmo, Arrigoni, Bartolini (2025), PLaCy: Robust Causal Discovery with Power-Laws** (arXiv:2507.12257). 用幂律噪声建模提升因果发现对重尾/非高斯扰动的鲁棒性. **新增第 5 个"须超越"的稳健化因果发现 baseline** (此前名单: 2605.05809/2403.12677/2407.07290/2604.02488). 撞车 MEDIUM.
+
+### K. 因果发现/CI 检验基础方法学 (idea v1 未引, 须补引的奠基谱系)
+
+- **Huang, Zhang, Zhang, Ramsey, Sanchez-Romero, Glymour, Schölkopf (2019 UAI), CD-NOD** (arXiv:1903.01672). 异质/非平稳因果发现的奠基作之一, **认识论立场与本 idea 相反** (主动建模非平稳性以恢复正确因果图, 而非把不稳定性当信号), novelty check 此前遗漏此谱系, 须补引以证明差异化. 撞车 LOW-MEDIUM.
+- **Zhang, Peters, Janzing, Schölkopf (2011 UAI), 核条件独立性检验 (KCI)** (arXiv:1202.3775). 方法基础必引链最上游节点, 后续多篇 (SplitKCI/GKCM/CI-hardness 系列) 均建立于此. 撞车无 (基础工具).
+- **Pogodin, Schrab, Li, Sutherland, Gretton (2024), Practical Kernel Tests of CI (SplitKCI)** (arXiv:2402.13196). 给出 KCI 偏差的理论刻画, 为"有限样本估计伪影"提供机制性支撑 (呼应 J-PCMCI+ 的 Nickell FPR 膨胀发现). 撞车 LOW.
+- **Wieck-Sosa, Haddad, Ramdas (2025), 单实现非平稳非线性时间序列的条件独立性检验** (arXiv:2504.21647, dGCM)。可作为 PCMCI+ 的候选插件检验器, 处理单一非平稳实现的统计推断. 撞车 LOW.
+- **Zhang, Y. (2026), 高维非平稳时间序列独立性检验** (arXiv:2606.08498) 及其姊妹篇 **ANOVA for High-dimensional Non-stationary Time Series** (arXiv:2509.09079). 提供比"重叠窗口 Cohen's d"更严格的显著性检验候选, 可用于给 fragility score 的窗口对比配上正式的统计检验. 撞车 LOW.
+- **Ferdous, Gani et al. (2023), CDANs: 自相关+非平稳时间序列的时序因果发现** (arXiv:2302.03246). PCMCI+ 在非平稳场景下的直接竞品, 检测"changing modules"而非本 idea 关注的估计脆弱性. 撞车 MEDIUM.
+
+### L. 数据集/Benchmark (Stage-1/1.5 中间基准候选)
+
+- **Stein, Shadaydeh, Blunk, Penzel, Denzler (2025), CausalRivers** (arXiv:2503.17452). 真实世界大规模因果发现 benchmark (含洪水分布偏移事件), PCMCI 在真实数据上仅中等表现——现实基线参照. 撞车 LOW.
+- **Ferdous, Hossain, Gani (2025), TimeGraph** (arXiv:2506.01361, idea-scope 精读补充 topic-level 已读条目)。非平稳/混杂噪声下因果发现的合成 benchmark, 提供"地板基线"参照. 撞车 LOW.
+- **Cheng, Wang, Xiao, Zhong, Suo, He (2023), CausalTime** (arXiv:2310.01753)。真实感生成时间序列因果发现 benchmark, **地理先验图模板可迁移到 3km 网格**, 可作 Stage 1.5 中间基准. 撞车 LOW.
+- **Fu, Huang, Li, Zheng, Ng, Chen, Hu, Zhang (2025), CaDRe: 气候隐藏动态因果结构学习** (arXiv:2501.12500)。气候领域隐藏动态因果框架, 但**无 sub-daily (中尺度对流时间尺度) 实验佐证**——快变尺度上仍是空白, 支持本 idea 的迁移新颖性. 撞车 LOW.
+
+### M. 强对流气候背景资料 (变量池/物理量来源, 非因果, 无撞车)
+
+- **Li, Chavas, Reed, Dawson (2020), ERA5/CAM6 SLS 环境气候学** (arXiv:2005.05489)。强对流环境的再分析气候学, 候选环境变量池来源 (CAPE/shear 等标准 diagnostics 的观测基线). 撞车无.
+- **Chavas, Dawson (2020), 理想化强对流探空模型** (arXiv:2004.11636)。给出 bulk diagnostics (CAPE/shear) 不足以刻画环境演化的具体实证数字 (以 3MAY99 个例为例), 直接支持"现有 diagnostics 信息维度有限"的研究动机. 撞车无.
