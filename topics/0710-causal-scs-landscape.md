@@ -111,3 +111,17 @@
 
 - **Li, Chavas, Reed, Dawson (2020), ERA5/CAM6 SLS 环境气候学** (arXiv:2005.05489)。强对流环境的再分析气候学, 候选环境变量池来源 (CAPE/shear 等标准 diagnostics 的观测基线). 撞车无.
 - **Chavas, Dawson (2020), 理想化强对流探空模型** (arXiv:2004.11636)。给出 bulk diagnostics (CAPE/shear) 不足以刻画环境演化的具体实证数字 (以 3MAY99 个例为例), 直接支持"现有 diagnostics 信息维度有限"的研究动机. 撞车无.
+
+## [idea-reviewer, 2026-07-11]
+
+<!-- v2 审查阶段补充搜索, 通过 web search + arxiv.org abstract 页核验 (非全文精读, 因初筛后机制均与本 topic 核心因果发现/因果效应估计机制不同, 未构成新颖性直接威胁, 故未触发"必须读全文"门槛). -->
+
+- **Ashwin et al. (2026), "Early warnings of critical transitions through vector autoregression: lessons from multiscale systems"** (arXiv:2605.28260). 提出用向量自回归 (VAR) 同时拟合多条时间序列以提取系统特征值, 从而在传统单变量方差/滞后自相关早期预警信号因振荡行为而失效的多尺度系统 (fold、亚临界 Hopf、含额外时间尺度分离的 singular Hopf 分岔) 中, 不仅判断稳定性还能识别即将发生的分岔类型. 机制是从 VAR 拟合系数中反推特征值 (确定性动力学重构), 而非追踪 VAR 系数本身在滑动窗口下的方差/漂移/不稳定性; 未使用因果推断框架, 也未处理观测假设违背下的估计器脆弱性.
+
+- **Franzke et al. (2026), "Estimating the Resilience of Non-Stationary Systems"** (arXiv:2604.24345)。提出基于 Langevin 方程回归形式化的方法, 在强季节性驱动等非平稳背景下估计地球系统分量 (如全球植被) 的韧性/稳定性, 可原生处理数据缺口、不规则采样、时变观测不确定性, 并可扩展到空间系统. 是传统自相关类韧性估计量的替代品, 核心仍是"经典临界慢化框架下的韧性指标", 不涉及因果推断, 也不将估计过程本身的不稳定性当作信号来源.
+
+- **(2026), "Early Detection of Latent Microstructure Regimes in Limit Order Books"** (arXiv:2604.20949)。针对限价订单簿, 用三 regime (稳定→潜伏恶化→压力) 因果数据生成过程形式化"潜伏建立期"窗口, 结合多路互补信号 MAX 聚合、rising-edge 条件和自适应阈值构造触发式探测器, 在 200 次仿真中平均提前 18.6±3.2 个时间步、precision 接近完美地检测出压力事件, 优于经典变点检测和微观结构基线. 应用领域 (金融市场微观结构) 与机制 (多路原始信号触发探测, 非因果效应/因果图估计过程的不稳定性) 均与因果发现文献不同, 但概念上是"潜伏期早于可观测应激期存在预测窗口"这一元叙事在另一领域的实现.
+
+## [idea-reviewer via codex second opinion, 2026-07-11]
+
+- **Laitinen, Lahti (2022), "Probabilistic Multivariate Early Warning Signals"** (arXiv:2205.07576)。提出用概率化 (贝叶斯/正则化) 向量自回归 (VAR) 模型作为多变量早期预警指标, 论证其相对传统单变量方差/自相关指标的优势在于更充分利用多变量信息、对参数的正则化处理及对不确定性的显式建模; 在多物种生态模型的仿真 benchmark 上验证检测灵敏度提升. 核心机制是概率 VAR 模型拟合过程本身的不确定性 (regularization/uncertainty treatment), 而非因果推断框架; 系统仍是经典 (慢变) 临界转换场景, 未处理快变强迫/非因果假设违背下的估计器脆弱性, 也未涉及因果发现方法 (PCMCI+/LKIF 等).
