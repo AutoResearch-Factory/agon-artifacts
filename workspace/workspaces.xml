@@ -38,6 +38,6 @@
     <one-line>piloting: 1D Poisson u* vs delta_u 表达式树深度对比.</one-line>
   </workspace>
   <workspace slug="causal-scs-indicator">
-    <one-line>v3 pilot：真实 PCMCI+ 双 regime gate 已跑通 (CPU, tigramite)——已知图变化正对照验证装置有效 (causal 0.786/non-causal 0.849)，但 fragility regime 中 causal (PCMCI+) 联合 AUROC 仅 0.482 (chance)，同复杂度 non-causal marginal-corr 达 0.705，均远低于 raw EWS (0.890)；LKIF 与真实数据仍待下一轮。</one-line>
+    <one-line>v4 factorial gate：8 seeds/two-stage bootstrap 显示 matched conditioning 在真实边变化下小幅提升 D/J，但 generic penalty 与 phase interaction 均不成立，完整 variance+AC1 raw EWS 全面占优；真实数据下载继续暂停。</one-line>
   </workspace>
 </workspaces>
