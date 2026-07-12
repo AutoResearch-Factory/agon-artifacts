@@ -277,3 +277,68 @@
 - **Sadeghi, AbdAlmageed (2026), 因果表征学习基准/复现审计** (arXiv:2603.17405, R-Score B/16)。批判CRL数据集/评估指标, 复现CausalVAE代码10次发现方差扩大5-10倍。撞车无(静态图像VAE解耦评估, 零涉及时序/tipping point)。复现方差实证可作本课题NEGATIVE结果讨论的跨领域参考。
 - **Telcs, Kurbucz, Jakovác (2024), df-causality** (arXiv:2410.19469, R-Score B/15)。条件方差随约束数增加饱和读出"自由度", 同时覆盖确定性和随机系统。撞车无(全新底层因果发现算法本身, 目标是平稳完整数据下正确判定因果结构)。要求无环图+单步滞后+平稳性, 与真实强对流环境冲突, 仅适合模拟阶段补充对照。
 - **Kafantaris (2026), "Enes Causal Discovery"** (arXiv:2603.24436, R-Score C/7)。质量差的单作者论文, 双专家MoE做因果模式分类, Recall/F1远逊PC算法(50节点MM上PC Recall=0.735 vs 仅0.135), 作者自认"cherry picks results"。撞车无(生物信息学蛋白质网络应用域, 方法论立场相反)。**不建议引用**, 唯一价值是其引用的dagpa2025(即上方2510.22031)经独立核验澄清了错误的可扩展性转述。
+
+## [deep-lit-tick --scope idea causal-scs-indicator, 2026-07-11 iteration 3]
+
+<!-- 本轮 idea-scope deep-lit-tick 第 3 次对本 idea 运行, 精读 51 篇 (7 轮, B4 饱和), 由 dispatcher 汇总并入本文件 (idea-scope 规则不直接写 landscape)。本轮聚焦回答 v3 review 提出的两个具体问题: (a) 能否设计更干净的受控对比隔离 Delta = AUC_conditional - AUC_marginal; (b) 是否有"因果条件化丢弃预测信号"这一现象的理论解释。全部 51 篇均为理论/机制类背景文献, 0 篇构成 idea 核心 niche 的 novelty 撞车 (最强撞车对象 RCV-PCMCI/VCDF/graph-instability/coherency-score 排名不变)。详见 ideas/causal-scs-indicator-deep-lit-report-2026-07-11-iteration3.md。 -->
+
+### AC. Markov Blanket 预测最优性 vs 因果 parent set (机制支柱: 为何条件化丢信号)
+
+- **Steyerberg 学派综述, Directed Acyclic Graphs and causal thinking in clinical risk prediction modeling** (arXiv:2002.09414)。证明 Markov Blanket (parents+children+parents-of-children) 是预测最优集, parents-only (=causal) 模型校准误差全场第二差; children 携带的信号是真实反向读出而非伪相关。撞车无, 是本轮解释"因果条件化丢弃预测信号"最直接的机制支撑之一。
+- **因果特征选择综述** (arXiv:1911.07147, Yu et al.)。CI 检验所需样本量随条件集大小指数增长, 是本课题"PCMasking"失效模式的正式命名来源。撞车无。
+- **A Unified View of Causal and Non-causal Feature Selection** (arXiv:1802.05844)。证明因果 FS 与非因果 FS 是同一目标函数 (互信息最大化=Markov Blanket) 的不同求解路径; 因果法条件集阶数指数增长 vs 非因果法阶数≤2, 小样本高维时非因果法几乎全面胜出。撞车无。
+- **Peters, Bühlmann, Meinshausen (2016), Causal inference using invariant prediction (ICP)** (arXiv:1501.01332)。ICP 原始论文, Theorem 1 只保证 FPR 不保证功效; 显式必要性反例——检验矩与扰动矩错配 (如仅二阶矩变化) 导致功效归零。撞车无, 是"条件化在特定错配下会归零功效"这一机制最早的数学证明。
+- **Heinze-Deml, Peters, Meinshausen (2018), Invariant Causal Prediction for Nonlinear Models** (arXiv:1706.08576)。非线性 ICP, 给出三个具体的 CI 检验功效盲区数学反例。撞车无。
+- **Rojas-Carulla, Schölkopf, Turner, Peters (2018), Invariant Models for Causal Transfer Learning** (arXiv:1507.05333)。anchor regression/IRM 共同理论先驱; Type II 错误导致非因果变量被误判为不变的具体机制, 提供两个可迁移的受控 factorial 设计模板。撞车无。
+- **Arjovsky, Bottou, Gulrajani, Lopez-Paz (2019), Invariant Risk Minimization (IRM)** (arXiv:1907.02893)。IRM 奠基论文, 其自身合成实验报告 ICP (与 PCMCI+ 同源方法) 表现"保守"(漏检真父节点)。撞车无。
+- **Rosenfeld, Ravikumar, Risteski (2021), The Risks of Invariant Risk Minimization** (arXiv:2010.05761)。证明训练环境数 E ≤ 环境特征维度 d_e 时 IRM 全局最优解被非因果解严格支配, 且是"近乎默认状态"; 构造性反例显示伪不变预测器在扰动方向反转时可劣于随机猜测。撞车无, 提供可迁移的环境数/维度比×扰动方向双轴受控设计模板。
+- **Kamath, Tangella, Sutherland, Srebro (2021), Does Invariant Risk Minimization Capture Invariance?** (arXiv:2101.01134, R-Score S 24/25)。证明 IRM 线性松弛类别本身系统性选错不变预测器, 与环境数无关; 不变集内选择失败 (骨架正确≠下游 OOD 鲁棒)。撞车无, 与上一条正交, 是独立的第 9 种机制候选。
+- **Schölkopf, Janzing, Peters, Sgouritsa, Zhang, Mooij (2012), On Causal and Anticausal Learning** (arXiv:1206.6471)。因果/反因果学习奠基工作, 额外信息是否可用取决于其作用在因果链哪一端, 是 anchor regression minimax 边界的定性雏形。撞车无。
+
+### AD. Anchor regression / Minimax 决策论边界 (本轮最锋利的理论支撑)
+
+- **Rothenhäusler, Meinshausen, Bühlmann, Peters (2021), Anchor regression: heterogeneous data meet causality** (arXiv:1801.06229)。证明扰动作用于 Y/隐混淆 H (而非协变量 X) 时, 非因果方法一致地、可证明地支配因果参数, 即使因果参数完全正确。撞车无, 是理解 idea v3 pilot 结果最核心的一篇理论支撑。
+- **How Useful is Causal Invariance for Domain Adaptation in Finite-Sample Settings?** (arXiv:2606.12680)。用 Le Cam 两点法证明匹配的有限样本 minimax 上下界: margin Δ≲1/n 时无算法能从因果不变性获益 (信息论硬下界, 非仅经验观察)。撞车无, 把上一条的定性结论升级为定量下界。
+- **Achievable distributional robustness when the robust risk is only partially identified** (arXiv:2502.02710)。把 anchor regression 推广到"测试扰动含未见方向": 只要存在任意强度未见方向分量即存在不可消除的线性惩罚项; 全部扰动落在未见方向时 anchor regression 与 OLS 风险增长率完全相同, K562 真实基因数据验证。撞车无。
+- **Bühlmann (2020 Neyman Lecture), Invariance, Causality and Robustness** (arXiv:1812.08233)。综述明确声明 ICP Theorem 1 不提供功效保证; Table 1 因子设计 (模型复杂度×扰动强度×learner) 展示相对增益从 +83% 翻转到 -100.8%, 可直接借鉴为"隔离 Delta"的受控设计模板。撞车无, 是本轮为回答 review 具体问题找到的最直接可用资产之一。
+
+### AE. 因果方法反而占优的边界条件 (互补对照, 证明结论是 regime-dependent 而非单向)
+
+- **Pfister, Bühlmann, Peters (2019), Learning stable and predictive structures in kinetic systems (CausalKinetiX)** (arXiv:1810.11776)。证明环境异质性充分时 (条件 C3 唯一性) 因果方法碾压非因果方法, 一致性定理精确刻画"因果何时赢"。撞车无, 是本轮唯一独立证明"因果法反而占优"边界条件的文献, 与 idea 结果互补而非矛盾。
+- **Domain Adaptation by Using Causal Inference to Predict Invariant Conditional Distributions** (arXiv:1707.06422)。提供可直接迁移的 γ(扰动强度 0.1→100)×N(样本量) 受控扫描: γ=0.1 时因果方法无优势甚至更差, γ≥1 时优势单调增大。撞车无, 是本轮回答"如何设计受控对比"最直接的现成模板之一。
+
+### AF. 计算复杂度/信息论视角 (第 4 类独立机制)
+
+- **Is Spurious Correlation Removal Always Learnable?** (arXiv:2606.12930)。证明与样本量无关的计算-统计缺口: 某些不变子空间统计上可识别但多项式时间算法恢复困难 (类比 Planted Clique); 给出显式相变阈值。撞车无, 是"条件化丢信号"的第 4 种独立机制候选 (计算难度而非样本量或功效)。
+
+### AG. 大规模实证审计 (独立佐证 fragility 现象非孤例)
+
+- **Do causal predictors generalize better to new domains?** (arXiv:2402.09891)。16 个真实表格数据集、超 50 万模型: 全特征预测器 16/16 Pareto 支配纯因果特征预测器; ICP/PC/FCI 真实数据产出率近零。撞车无, 是本轮最强的大规模实证佐证之一。
+- **Gulrajani, Lopez-Paz (2021), In Search of Lost Domain Generalization (DomainBed)** (arXiv:2007.01434)。近 4.6 万网络严格协议下 IRM 平均分反而略低于 ERM; IRM 唯一决定性胜利建立在信息泄漏的 oracle 调参协议上。撞车无。
+- **Empirical or Invariant Risk Minimization? A Sample Complexity Perspective** (arXiv:2010.16412)。证明 IRM 渐近不劣于 ERM 但小样本 (N<10000) 时打平甚至略差, 是 conditioning 有限样本功效损失的实例化。撞车无。
+
+### AH. 横截面理论谱系背景补充 (大部分为重复确认, 排除误读风险)
+
+- 以下 13 篇均为横截面因果不变性/分布泛化理论谱系的补充背景, 逐篇精读后判定与 idea 核心 claim 不撞车, 贡献主要是排除误读风险或提供次要背景: **A causal viewpoint on prediction model performance under case-mix shift** (arXiv:2409.01444, AUC=P(X|Y) 纯泛函, 问题轴不同不可直接套用); **Distribution Shift Is Key to Learning Invariant Prediction** (arXiv:2601.12296, 疑似误用 Fano 引理方向, R-Score C/11); **Domain adaptation under structural causal models** (arXiv:2010.15764, 区分"多环境平均"与"单次多变量条件化"是不同操作轴); **A causal framework for distribution generalization** (arXiv:2006.07433, confounding-removing 干预下因果解 minimax 最优, 纯截面无时序); **Functional structural equation models with out-of-sample guarantees** (arXiv:2503.20072) 与 **Functional worst risk minimization** (arXiv:2412.00412, 两篇是同一期刊修订对, anchor regression 推广到无穷维 Hilbert 空间); **Partial Transportability for Domain Generalization** (arXiv:2503.23605, 反直觉: 纯非因果 descendant 特征可在 worst-case 泛化上击败真实因果 parent set, 关键在机制是否跨域不变而非是否因果); **Bengio et al., A Meta-Transfer Objective for Learning to Disentangle Causal Mechanisms** (arXiv:1901.10912, 参数计数给出第 7 种独立机制: 因果分解仅需 O(N) 重估计, 错误分解需 O(N²)); **Schölkopf et al., Towards Causal Representation Learning** (arXiv:2102.11107, sparse mechanism shift 综述, SMS 是未证明假设非定理); **Adaptive-CaRe** (arXiv:2602.06611, ALARM 低数据场景因果约束 MLP 明显劣于无约束 MLP 的独立负结果); **Causal Feature Selection via Orthogonal Search** (arXiv:2007.02938, 单因素 factorial ablation 模板); **Two generalizations of Markov blankets** (arXiv:1903.03538, 形式化区分预测最优 Markov blanket vs 干预导向因果集); **Improving TabPFN's Synthetic Data Generation by Integrating Causal Structure** (arXiv:2603.10254, 真实 DAG 已知时因果条件化稳定获益, 但换成 PC-stable 发现的图后收益消失甚至转负——"因果图本身被估计"这一层的独立佐证)。
+
+### AI. Local Independence 支线 (连续时间/点过程原生因果发现理论, 全新方向, 高强度 novelty 证据)
+
+<!-- 这条支线由 round5 的 2001.06208 触发, round6-7 系统性追索, 结论是一个稳定、可作 novelty 证据的文献空白。 -->
+
+- **Peters, Bauer, Pfister (2022), Causal models for dynamical systems** (arXiv:2001.06208)。概念性框架, 非正式断言"faithfulness 假设在动力系统中似乎不再站得住脚", 触发本支线。撞车无。
+- **Conditional Local Independence Testing for Itô processes** (arXiv:2506.07844)。连续时间 Itô 过程 local independence 检验, 关键渐近机制要求样本量 N→∞ 与时间步长 δ→0 联合发生, 单纯增大 N 会导致 Type I error 发散——与离散时间因果发现渐近理论的本质区别。撞车无。
+- **Mogensen, Malinsky, Hansen (2022), Faithful graphical representations of local independence** (arXiv:2310.13796)。Local independence 图 faithfulness 公理化 (transitivity conditions D0-D3); 全文不讨论非平稳/趋近分岔; 数值实验显示 PC 类"多个小条件集"策略 (与 PCMCI+ 邻接搜索同构) 比单次大条件集更易因 (近) faithfulness 违反出错。撞车无。
+- **Local Independence Testing for Point Processes** (arXiv:2110.12709)。Hawkes 点过程边缘化 (潜变量) 会破坏一阶局部独立检验的渐近水平 (非仅功效); 全文限定平稳过程。撞车无。
+- **Nonparametric conditional local independence testing** (arXiv:2203.13559)。首个 CLI 非参数检验, 给出比"趋近分岔"更精确的机制候选——non-collapsibility (对满足 CLI 的完整系统的边缘化子系统做参数化 CI 检验会完全丧失渐近水平)。撞车无。
+- **Weak equivalence of local independence graphs** (arXiv:2302.12541)。局部独立图 Markov 等价判定是 coNP-complete (经典 ADMG 是多项式); 全文确认零涉及 bifurcation/非平稳/faithfulness。撞车无。
+- **An Asymmetric Independence Model for Causal Discovery on Path Spaces** (arXiv:2503.09859)。自我定位为 local independence 的替代框架 (批评其"除计数过程外无法实践检验"); stationary-only, 对"更干净受控对比"问题是明确负结果。撞车无。
+- **Detecting Mutual Excitations in Non-Stationary Hawkes Processes** (arXiv:2601.11717)。标题精确命中"非平稳 Hawkes 过程", 但读全文确认与 local independence 框架基本脱节; stability margin/separation 参数被要求固定不退化, 未讨论其趋于临界值时的行为。撞车无。
+- **Graphical modeling of stochastic processes driven by correlated errors** (arXiv:2005.07568)。mu-separation 最完整技术展开; 未发表的删除草稿章节中"非平稳"仅指初始条件非平稳分布采样, 非动力学参数随时间变化。撞车无。
+- **Didelez (2008), Graphical Models for Marked Point Processes based on Local Independence** (arXiv:0710.5874)。**Local independence 奠基论文**, Extensions 一节明确提出应否放松"图结构对所有 t 恒定"这一假设, 称其"deserves further investigation"——19 年后 (含本轮 2310.13796) 仍未被解决。撞车无, 是本轮最强的 novelty 证据: 领域奠基作者自己标记的空白至今未填补。
+- **Dynamic Structural Causal Models** (arXiv:2406.01161)。SDE 严格映射为 σ-分离图; 919 行全文确认零涉及非平稳/参数漂移/分岔/临界。撞车无。
+- **Røysland, Ryalen, Nygård Evans, Didelez (2022), Graphical criteria for identification of marginal causal effects in continuous-time event-history analyses** (arXiv:2202.02311)。Didelez 本人参与的最新延伸, 附录提供唯一的正式 faithfulness 违反反例, 但是单一静态代数构造非趋近临界值式渐进坍缩; 与 2310.13796 互相点名, 三角闭环验证空白确实存在。撞车无。
+- **THPs: Topological Hawkes Processes for Learning Causal Structure on Event Sequences** (arXiv:2105.10884)。把 local independence 沿空间维度扩展, 但拓扑图与强度参数仍预设时间不变; 44 篇 2024-2026 反引文全部沿拓扑/神经网络/潜混淆维度延伸, 无一涉及非平稳性。撞车无。
+
+### AJ. 精读后判定低相关 (红线要求全读, 结论是排除而非补充)
+
+- **Complete Causal Identification from Ancestral Graphs under Selection Bias** (arXiv:2603.26301)。纯理论 selection bias/PAG 可识别性论文, S2 中零引用零被引, 与本课题机制完全不同轴, 大概率是关键词命中的边缘论文。撞车无。
