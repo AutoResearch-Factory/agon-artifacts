@@ -38,6 +38,6 @@
     <one-line>piloting: 1D Poisson u* vs delta_u 表达式树深度对比.</one-line>
   </workspace>
   <workspace slug="causal-scs-indicator">
-    <one-line>v4 factorial gate：8 seeds/two-stage bootstrap 显示 matched conditioning 在真实边变化下小幅提升 D/J，但 generic penalty 与 phase interaction 均不成立，完整 variance+AC1 raw EWS 全面占优；真实数据下载继续暂停。</one-line>
+    <one-line>v5 hardened-DGP stress test (partial confounder observability + nonlinear edge + physically distinct pre/post regimes) 显示 v4 的 graph-only conditioning 收益存活，confound-only penalty 更不稳定；官方 LK_Info_Flow 的 smoke-scale 复现方向相反（estimator-specific，待全规模裁决）；raw EWS 全面占优，真实数据下载继续暂停。</one-line>
   </workspace>
 </workspaces>
