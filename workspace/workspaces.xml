@@ -38,6 +38,6 @@
     <one-line>piloting: 1D Poisson u* vs delta_u 表达式树深度对比.</one-line>
   </workspace>
   <workspace slug="causal-scs-indicator">
-    <one-line>v6 将 headline 收紧为跨估计器 conditioner-sensitivity 审计：v5 全 16 格显示 mixed+partial-observability 收益消失，LKIF smoke 为 3 反向/1 同向；新预注册 exchangeable-null audit 因 bootstrap 过覆盖失败，真实数据继续暂停。</one-line>
+    <one-line>v7 按 owner 澄清转向应用价值：等权融合 (D,J)+raw EWS 预注册结果 NEGATIVE (12/16 格显著更差, 4 格 null)；探索性 alpha 扫描显示小权重融合仅在 graph-only-max 格可赢 raw-alone (未校准), 下一步是 held-out 拟合融合器 + 扩展 null-calibration 到该格。</one-line>
   </workspace>
 </workspaces>
