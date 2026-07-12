@@ -38,6 +38,6 @@
     <one-line>piloting: 1D Poisson u* vs delta_u 表达式树深度对比.</one-line>
   </workspace>
   <workspace slug="causal-scs-indicator">
-    <one-line>v7 按 owner 澄清转向应用价值：等权融合 (D,J)+raw EWS 预注册结果 NEGATIVE (12/16 格显著更差, 4 格 null)；探索性 alpha 扫描显示小权重融合仅在 graph-only-max 格可赢 raw-alone (未校准), 下一步是 held-out 拟合融合器 + 扩展 null-calibration 到该格。</one-line>
+    <one-line>v8 明确扩展到 pressure-level × longitude × latitude × time：v7 等权融合勘误为 10/16 负、6/16 含零；L4 合成 smoke 正确恢复跨层空间 pattern 与 3 h/24 h lag，但 held-out 融合选择 raw-only、Delta=0；真实逐小时 HRRR 仍受 stop gate 阻塞。</one-line>
   </workspace>
 </workspaces>
