@@ -153,3 +153,84 @@ SHIPS+（2510.02050）已做"因果发现特征增补业务 predictors"，Flora 
 - Estimated compute: Gate 0 `5–10` L4 GPU-h；Pre-P2 `5–10` GPU-h（重叠诊断为纯 CPU）；每 outer fold SSL+LP-FT 合计约 `50–100` L4 GPU-h（较 v2 增 `10–20` GPU-h 用于 Stage C 反传）；PCMCI+/LKIF 约 `1,500–4,000` CPU-h，预算随 fold 数线性增长。
 - Data: 单个 float16 raw cube 约 18.9 MB；体量由 `G1` 功效门决定，预计 HRRR 子集 `0.1–0.3 TB`。SPC 无新增标注费。
 - Timeline: Gate 0 约 1 周；Pre-P2 2–3 周；功效核算/数据拉取/P2 约 6–10 周。Gate 0、raw-base adequacy 或 `G1` 任一不通过即停止 confirmatory 路线，只报告失败边界。
+
+<review date="2026-07-13">
+
+## Scores
+
+评审口径：`topics/0710-causal-scs.md` 未声明 `Target venues`/`Review standards`，沿用 idea/v1/v2 review 既定口径：顶级 Earth-system methods / AI4Science / 强对流预测应用论文标准。本轮 Claude 先独立通读 v3 全文、v2 `<review>` 原文与 idea v10 的 `<review>`/`<deep-lit-integration>`，并用 arxiv-tools 拉取 arXiv:2202.10054（LP-FT）与 arXiv:2409.13598（Prithvi WxC）全文核验 v3 的两处关键文献转述，同时独立重算 SSL decoder 的 Conv3d/MaxPool3d 张量形状与 edge-first 聚合公式，形成 Claude 初评；随后按 dispatch_manual.md 请 codex 独立评审（zero-context）。codex 指出一处 Claude 初评遗漏的 CRITICAL 级问题（首层 `MaxPool3d` 步幅 `(4,2,2)→(4,8,8)` 把 raw 分支空间分辨率在仅一层非降采样卷积后就压缩到与 `(D,J)` 完全相同的 24km，重新制造弱 raw comparator 问题）以及一处 Method Specificity 新缺口（PCMCI+ 条件集跨窗口是否固定未声明、marginal 对照与 causal 估计量采样方差不匹配）。Claude 独立重算张量形状（`Conv3d(24,32,3,pad=1)` 保持 `[32,96,64,64]` 不变，`MaxPool3d((4,8,8))` 后为 `[32,24,8,8]`，第二层 `Conv3d` 保持 `[64,24,8,8]`，`192km/8=24km`，与 `(D,J)` 24km 因果格分辨率完全一致）确认 codex 的具体指证站得住脚，据此下修相关维度分数。
+
+| Dimension | Score | Notes |
+|-----------|-------|-------|
+| Problem Fidelity | 6/10（Claude 初评 8，codex 6，收敛至 6） | LP-FT 修复本身真实且文献支撑成立：Claude 独立拉取 arXiv:2202.10054 全文摘要确认 "the easy two-step strategy of linear probing then full fine-tuning (LP-FT)...combines the benefits of both...outperforms both fine-tuning and linear probing"，与 v3 转述一致；独立拉取 arXiv:2409.13598 全文 grep 确认 Prithvi WxC 明确写"simply tuning a new head for each problem will lead to subpar results. Instead, we always add new embedding and output layers...the typically frozen core of a model with a few additional layers"、且 gravity-wave 任务显式"we freeze the encoder and decoder part of the model"再接 4 个新卷积块——v3"Prithvi WxC 自己也不用冻结+纯线性 probe"的表述准确，但有一处未言明的细微张力：Prithvi WxC 自己的实际补救方案是"冻结骨干+更重的新头"，并非 v3 采纳的"解冻整个 encoder 全量微调"（LP-FT），两条引用各自成立但并不互相印证同一条补救路径，这一 nuance 不构成误导但值得下一版说明。真正的 CRITICAL 是 codex 发现、Claude 独立重算张量形状确认为真的新问题：本轮为对齐 SSL decoder 与 masking grid 把首层 `MaxPool3d` 步幅从 `(4,2,2)` 改为 `(4,8,8)`，导致 raw 分支在仅经过一层不改变空间尺寸的 `Conv3d(24,32,3,pad=1)` 之后，空间分辨率就被直接压到 `8x8`（`192km/8=24km`）——与 `(D,J)` 所用的 24km 因果格完全同分辨率，且发生在网络学到任何分层特征之前。该压缩后的特征图同时被 SSL decoder 与下游 `AdaptiveAvgPool3d((4,2,2))` 分类路径共享，v3 正文"分类路径…不受本轮池化步幅改动影响"这句话只在**输出张量形状**层面为真（`AdaptiveAvgPool3d` 对任意输入分辨率都会给出目标形状），在**信息含量**层面并不成立——这正是 idea v10 review 已经诊断并修复过一次的"位置信息被 pooling 抹除、制造虚假 causal 增量"失效模式，这次换了触发机制（从 global pooling 换成极早期大步幅局部 pooling）重新出现。判定为 CRITICAL 而非 RETHINK：修复路径明确且局部（解耦 decoder 用的 pooling 与分类路径用的 pooling），不需要放弃 LP-FT 或三臂框架本身。 |
+| Method Specificity | 7/10（Claude 初评 8，codex 6，收敛至 7） | v2 明确要求修复的两处 CRITICAL 经独立验证确实被正确、优雅地修复：(1) edge-first 均值聚合器 `D_b=mean_e sd_w|r_e|` 从结构上消除了"BH 置零后取中位数"的坍缩路径，只有全部 120 条候选边跨窗口恒定时才精确为零，Failure Modes 也诚实标注了这一边界；(2) `MaxPool3d((4,8,8))` 后第二卷积层输出精确为 `[64,24,8,8]`，Claude 独立重算确认与 `4h x 8x8` masking grid 逐元素对齐，`Conv3d(64,24,kernel=1)` decoder 直接预测块均值、无需上采样，是比 v2 review 建议的 `ConvTranspose3d` 方案更简洁的修法。但 codex 指出一处此前 v1/v2/idea 各轮 review 均未捕捉到的新缺口：全文未声明 PCMCI+ 为每条候选边选出的 conditioner（最多 3 个）是否跨四个 72h 窗口固定；若逐窗口独立重选，同一条边在不同窗口的 `r_e(w)` 可能对应不同的条件 estimand，`D_b/J_b` 会把真实效应变化与有限样本 parent-set 选择噪声混淆；同时 marginal 对照用的是无条件 Fisher-z Pearson 相关，与 PCMCI+ 的 0-3 conditioner partial correlation 采样方差/自由度不匹配，使当前"privilege-matched"对照并未真正匹配估计量噪声地板，本身就可能制造一个与 `(D,J)` 信息含量无关的 causal-vs-marginal 差异。这是一个新发现、直接影响 `(D,J)` 是否测到了论文声称的东西的具体缺口，判定 CRITICAL。 |
+| Contribution Quality | 6/10（Claude 与 codex 一致，v2 沿用） | 与 v2 完全一致，proposals.xml one-line 也自陈"本轮未处理，留待下一轮"。"主贡献"仍是"给出可审计的正/零/负结论"，属实验可信度要求而非机制贡献；`(D,J)` 这一候选机制仍被 SSL 预训练、LP-FT、storm-relative 追踪、双估计器、双层 bootstrap 包围。且新发现的 Method Specificity 缺口（条件集未冻结、估计量未匹配）意味着 `(D,J)` 目前还不能被干净地从估计量伪影中剥离出来单独主张为机制贡献。 |
+| Frontier Leverage | 7/10（Claude 初评 8，codex 7，收敛至 7） | LP-FT 是恰当且克制的现代化选择，两篇关键引用（2202.10054/2409.13598）经全文核验转述准确，不是"为前沿而前沿"。codex 补充的保留意见成立且应予承认：LP-FT 的实证基准来自视觉分布偏移任务（Breeds/DomainNet/ImageNet 变体），其理论分析建立在理想化两层线性网络设定上，只能"motivate"而非"guarantee"其在这个 `<=50-100 storm` 小样本天气 CNN 场景下同样成立。Claude 另外核验了 codex 在 Modernization Opportunities 中提到的两篇陌生文献（arXiv:2606.31248 STRATA、arXiv:2601.20342 StormDiT），均为真实存在且被准确描述：STRATA 是 tile-based 全球风暴解析 transformer，单时刻到下一时刻自回归滚动，无原生 96h 历史堆叠；StormDiT 是在中国雷达/降水事件上训练的生成式临近预报模型，模态错配。两者进一步加固而非削弱"不直接复用外部预训练权重、自建小规模 SSL 骨干"这一判断。 |
+| Validation Focus | 6/10（Claude 初评 7，codex 6，收敛至 6） | 本轮真实进展：leave-one-season-out 被显式声明为唯一确认性 holdout（IID grouped 5-fold 降级为描述性附录），直接解决 v2 CRITICAL 的"挑对自己有利的 holdout"问题；新增 Pre-P2 历史窗口重叠泄漏诊断，是对 v2 CRITICAL 的诚实"先诊断后修"分阶段回应（本轮只诊断不改分组，明确标注不产出 skill claim）。但由于 marginal 对照未真正 estimator-matched（见 Method Specificity），当前三臂比较尚不能建立其想要建立的结论，这本身就封顶了本维度的分数；同时 grouped 5-fold、LKIF、SFAS、Prithvi-CAFE 等触发式/附录分支在核心识别问题未解决前仍分散确认性资源。 |
+| Paper Story and Claims Calibration | 6/10（Claude 初评 7，codex 6，收敛至 6） | `(D,J)` 构造机制图缺口延续自 v2，作者已自陈"留待下一轮"，诚实但未解决。codex 进一步指出：raw-base adequacy（Stage B vs C）目前嵌在 Method 小节而非作为 Results 的第一个独立结果报告，鉴于本轮新发现的 pooling 分辨率问题，这一顺序缺陷变得更关键——读者会在看到 hero forest plot 前无从判断三臂比较的可信度基础（raw 分辨率是否被压缩、对照是否估计量匹配）是否成立；且 POSITIVE/NULL/NEGATIVE 判据边界目前只写在 Failure Modes 的 bullet 列表里，缺一个独立 Discussion/Conclusion 用正文语言复述这些边界。 |
+| Overall | 6.3/10 | Claude 收敛后 (6+7+6+7+6+6)/6≈6.33；codex 独立给出 6.2（(6+6+6+7+6+6)/6≈6.17，文中写 6.2）。两者按规则取平均 = (6.33+6.2)/2≈6.27 → 6.3。**分歧标注**：Problem Fidelity 一项收敛前 Claude 初评 8 与 codex 6 相差 2（达到维度级 ≥2 标注阈值），核心分歧来源于 codex 独立发现、Claude 初评完全遗漏的 pooling 分辨率坍缩问题——Claude 独立重算张量形状（`Conv3d` 不改变空间尺寸、`MaxPool3d((4,8,8))` 后为 `8x8=24km`）确认该指证成立后下修；整体 Overall 分歧 0.13，未达标注阈值。 |
+
+## Verdict
+
+REVISE（Claude 收敛后与 codex 判定一致，均为 REVISE；核心机制——LP-FT 端到端 raw base + 唯一预注册非因果对照 + storm-cluster 校准推断——框架本身仍成立且比 v2 更接近可信，问题集中在本轮修复 SSL decoder 对齐时意外引入的分辨率坍缩、以及此前各轮都未发现的估计量匹配缺口，两者修复路径均明确且局部，未达 RETHINK 门槛）
+
+## Weaknesses (dimensions < 7)
+
+### Problem Fidelity (6/10)
+
+- Weakness: LP-FT 真实修复了 v2 的"encoder 从未接收任务梯度"漂移（文献核验见上）。但为修复 v2 另一处 CRITICAL（SSL decoder 与 masking grid 不对齐）而做的架构改动——首层 `MaxPool3d` 步幅 `(4,2,2)→(4,8,8)`——把 raw 分支的空间分辨率在仅一层不降采样的 `Conv3d(24,32,3,pad=1)` 之后就压缩到 `8x8`（`192km/8=24km`），与 `(D,J)` 因果格完全同分辨率。该被压缩的特征图同时喂给 SSL decoder 和下游分类 `AdaptiveAvgPool3d((4,2,2))`，"分类路径不受本轮改动影响"这一表述只在输出形状层面成立，在信息含量层面不成立，重新制造了 idea v10 review 已诊断并修复过的"弱 raw comparator 制造虚假增量"失效模式。
+- Suggested fix: 解耦两个被错误共享到同一层的 pooling 需求：分类路径（raw-only/marginal/causal 三臂共用的 embedding）保留原 `(4,2,2)` 步幅或更精细分辨率，让至少两层卷积在 3km 尺度上构建层级特征；只在 SSL decoder 分支前额外插入一个无参数的 `AvgPool3d`，把该分支单独降到 `4h x 8x8` 的 mask-block 分辨率。这是一处局部改动（只新增一个 pretraining-only 的 pooling 算子），完整保留已修复的 decoder/mask 对齐，同时消除新引入的共享干路分辨率坍缩。改动后需重跑 raw-base adequacy gate（Stage C vs Stage B），因为当前 adequacy 比较是在分辨率坍缩后的架构上做的。
+- Priority: CRITICAL
+
+### Method Specificity (7/10)
+
+- Weakness: v2 要求修复的两处 CRITICAL（BH-median 坍缩、decoder/mask 不对齐）均被正确修复，经独立重算验证。但 codex 指出且此前各轮均未捕捉的新缺口：(1) PCMCI+ 为每条候选边选出的 conditioner 是否跨四个窗口固定未声明，若逐窗口重选，`D_b/J_b` 会混入 parent-set 选择噪声；(2) marginal Pearson 对照（无条件）与 PCMCI+ partial correlation（0-3 conditioner）采样方差/自由度不匹配，当前"privilege-matched"只匹配了 edge/lag/window 身份，未匹配估计量噪声地板。
+- Suggested fix: 仅用 outer-training storms 为每条候选边冻结一个 conditioner set，并在全部窗口与 held-out storms 复用该固定集合；把 marginal 对照替换为 estimator-matched conditional sham——保持 edge/lag/window、conditioner 数量与 MCI 计算完全相同，只按预注册规则置换 conditioner 身份，从而把"条件是否正确"与"估计量噪声地板是否相同"两个变量分离开。
+- Priority: CRITICAL
+
+### Contribution Quality (6/10)
+
+- Weakness: 与 v2 完全一致，本轮未处理（proposals.xml one-line 自陈）。"主贡献"仍是实验可信度陈述而非机制贡献；`(D,J)` 被协议组件包围，且新发现的估计量匹配缺口意味着它目前还不能被干净地从估计量伪影中剥离。
+- Suggested fix: 沿用 v2 review 建议——把"固定条件集、方差标准化的 edge-first `(D,J)` 残差"定义为唯一机制贡献，SSL/LP-FT/坐标/双层 bootstrap 全部显式降级为协议脚手架；待 Method Specificity 两处 CRITICAL 修复后，这一贡献才能被干净归因。
+- Priority: IMPORTANT
+
+### Validation Focus (6/10)
+
+- Weakness: leave-one-season-out 唯一确认性判据、历史窗口重叠诊断均是真实进展。但 marginal 对照未 estimator-matched 意味着当前三臂比较尚不能建立其核心可信度论证，这直接封顶本维度；grouped 5-fold/LKIF/SFAS/Prithvi-CAFE 等触发式分支在核心问题未解决前仍构成不必要的分散。
+- Suggested fix: 先修复 Method Specificity 的估计量匹配缺口；随后确认性验证只保留强 raw base（分辨率修复后）、estimator-matched conditional sham、causal `(D,J)` 三臂加 LOSO；LKIF 降为一次性附录复核而非并列主表臂；SFAS/Prithvi-CAFE 保持触发式/POSITIVE-后附录，不进入主确认路径。
+- Priority: IMPORTANT
+
+### Paper Story and Claims Calibration (6/10)
+
+- Weakness: `(D,J)` 构造机制图缺口延续 v2，已自陈延后但未解决。raw-base adequacy 仍嵌在 Method 而非作为 Results 首个独立结果，鉴于本轮新发现的分辨率问题这一顺序缺陷更关键；POSITIVE/NULL/NEGATIVE 判据只藏在 Failure Modes 列表里，缺独立 Discussion/Conclusion 正文陈述。
+- Suggested fix: 新增机制图作为 Fig.1（候选边模板→固定条件集→逐窗口估计→edge-first 聚合→64 维残差），forest plot 顺延为 Fig.2；S5 顺序改为先报告 raw-base adequacy（分辨率修复后重跑）与 matched-control 校验，再报告三臂主结果；新增独立 S6 Discussion，用正文语言复述 Results-to-Claims 边界。
+- Priority: IMPORTANT
+
+## Simplification Opportunities
+
+- 解耦 SSL decoder 用的 pooling 与分类路径用的 pooling（新增一个无参数、只在 pretraining 分支生效的 `AvgPool3d`），而不是共用一层大步幅 `MaxPool3d`——同时消除本轮新引入的分辨率坍缩，且不影响已修复的 decoder/mask 对齐，是最小的局部改动。
+- 用"固定 conditioner set + estimator-matched conditional sham"同时解决 Method Specificity 与 Validation Focus 的两处缺口，取代当前分离的"BH 诊断 + marginal Pearson 对照"设计，减少读者需要同时追踪的估计量种类。
+- （沿用 v2 未采纳部分）LKIF 降为冻结后单次附录复核，双层 storm bootstrap 先用单层报告名义覆盖率，只有诊断显示明显偏离 95% 时才触发双层校正。
+
+## Modernization Opportunities
+
+NONE（本轮无需引入新的外部前沿组件；需要现代化的是估计量匹配与架构分辨率细节，不是加入更大的预训练模型）。Claude 独立核验 codex 提出的两篇新增候选文献均真实存在且描述准确：STRATA（arXiv:2606.31248，全球风暴解析、tile-based transformer，单时刻到下一时刻自回归 rollout，无原生 96h 历史堆叠）与 StormDiT（arXiv:2601.20342，生成式临近预报，训练于中国雷达/降水事件，模态错配）——两者与此前已排除的 HRRRCast/StormCast/Stormscope 一样存在结构性不匹配，进一步加固而非削弱"自建小规模 SSL 骨干、不直接复用外部预训练权重"这一判断。LP-FT（arXiv:2202.10054）与 Prithvi WxC（arXiv:2409.13598）的引用经全文核验均准确，是恰当、克制的现代化选择。
+
+## Drift Warning
+
+v2 的 CRITICAL 漂移（冻结 encoder + 线性 probe，raw encoder 从未见任务梯度）已被 LP-FT 真实修复，经独立核验 arXiv:2202.10054 与 arXiv:2409.13598 全文，两处引用转述均准确无夸大。但修复过程中，为对齐 SSL decoder 与 masking grid 而调整的首层 `MaxPool3d` 步幅（`(4,2,2)→(4,8,8)`），产生了一个新的、未被此前任何一轮 review 识别的漂移路径：raw 分支的空间分辨率在仅经过一层非降采样卷积后即被压缩到与 `(D,J)` 24km 因果格完全相同的分辨率，这重新制造了 idea v10 review 已经诊断并修复过的"弱 raw comparator 因信息丢失而制造虚假增量"失效模式（触发机制从 global pooling 换成了极早期大步幅局部 pooling，后果相同）。这不是引入 idea 锚定问题之外的新问题，而是同一个"raw 模型是否真的训练充分、观测充分"的核心可信度问题以新的技术形式复发；判定为 CRITICAL 而非 RETHINK，因为修复路径明确且局部（解耦分类路径与 decoder 路径的 pooling），不需要放弃 LP-FT 或三臂比较框架本身。
+
+## Results-to-Claims Mapping
+
+| Outcome | Supportable claim |
+|---------|------------------|
+| POSITIVE | 在修复 pooling 分辨率坍缩与 PCMCI+ 条件集/估计量匹配两处新发现的 CRITICAL 问题之前，即便观测到 POSITIVE，也只能声称"`(D,J)` 残差优于一个空间分辨率被压缩到 24km 的 LP-FT 微调 raw 模型，以及一个未做 estimator-matching 的边际相关对照"，不能声称已证明该增量来自因果条件信息而非弱 baseline 或估计量噪声差异。修复后才可限定声称：在该 season、该分辨率修复后的 LP-FT raw base、该 estimator-matched 条件对照下，`(D,J)` 为已训练好的原始网格模型提供了超过预设阈值的有限样本增量；仍不得声称增加了原始历史之外的信息或识别了真实大气因果机制。 |
+| NULL | 至少一个 metric、对照、season、校准、功效或 raw/comparator adequacy 门未通过。在当前架构下，NULL 结果尤其不能被解读为"`(D,J)` 无价值"，因为 raw 分支本身可能因分辨率坍缩而被人为削弱，NULL 可能只反映一个被削弱的 raw comparator 恰好追平了同样受限的 `(D,J)` 表示。 |
+| NEGATIVE | 只有在功效达标、raw-base adequacy（含分辨率修复后的重新校验）、estimator-matched 对照校准、且跨 season 一致复现之后，才能称该具体 `(D,J)` 实现在指定 estimator、模型与数据范围内没有实用增量；两上界均 `<0` 可另记 HARM。两者均不得外推到其他因果衍生表示、其他 backbone 分辨率或其他 estimator。 |
+
+## Paper Outline Check
+
+六节结构与三张主图基本对应 Claim 1+2 的骨架，v3 相对 v2 无结构性改动（Contribution Quality 与 Paper Story 两处 IMPORTANT 被作者显式标注为"本轮未处理"）。仍缺 `(D,J)` 构造机制图；raw-base adequacy 仍嵌在 Method 小节而非作为 Results 的第一个独立结果——随着本轮新发现的 pooling 分辨率问题，这一顺序缺陷更加关键：若不先在 Results 中独立证明 raw base（分辨率修复后）与因果对照的 estimator-matching 均成立，读者会在看到 hero forest plot 前无从判断三臂比较的可信度基础是否成立。建议：机制图提升为 Fig.1、forest plot 顺延为 Fig.2；S5 先报告 raw adequacy + matched-control 校验、再报告主结果；新增独立 S6 Discussion/Conclusion 显式陈述 POSITIVE/NULL/NEGATIVE 判据边界，而非只留在 Failure Modes 列表中。
+
+</review>
+
