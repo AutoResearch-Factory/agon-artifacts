@@ -42,3 +42,82 @@ workspace: workspace/causal-scs-indicator/
   - P2（确认性应用）: `>=2` seasons、`>=50` 独立 storm systems，2-6h/36km hazard，outer storm holdout；比较 raw、raw+sham、raw+非因果 lag 特征、raw+`(D,J)`，共享历史与预算。模型 comparator 集不限于本轮的位置保留 CNN：v10 只是验证"能否在一个合格的端到端模型上观察到增量"这一问题的第一个可信实现，P2 起应视为可扩展的模型谱系，后续可纳入更大容量/更现代的时空架构 (如 transformer-based 时空模型、DiT 等扩散式架构) 复核结论是否只是当前 CNN 归纳偏置的特例；本轮不实现这些架构，仅作路线图标注。
   - P3（归因）: 在通过 P1.5 后比较 full 4D、single-column、horizontal-only、hour-only、day-only，并分析不预命名的 regime 差异；边界 overlap 仅为次要端点。
 - Assets status: 合成 4D、v10 CNN 代码/结果及 HRRR/SPC smoke 资产已就绪；连续真实 4D 数据仍受 stop gate 阻塞，详见 `workspace/causal-scs-indicator/data/MANIFEST.md`。
+
+<review date="2026-07-12">
+
+## Novelty
+
+- Score: 3/10（Claude 与 codex 独立评估一致，与 v7-v9 一脉相承不变）
+- Closest prior work: Ganesh, Beucler, DeMaria, Runge (2025), Multidata-PC SHIPS+ (arXiv:2510.02050)。Claude 与 codex 均重新核验其全文摘要：因果发现选出的预测因子被**增补**进标准 21 个 SHIPS predictors 并在真实业务数据上检验增量技能, 这一表述在 v9 review 中已被修正, v10 novelty quick-check 延续了修正后的准确表述。
+- Key differentiator: 因果估计器与融合机制本身不主张新颖; 差异化仍是"在同历史、同下游参数量、含 sham 对照的原始时空场端到端模型上做条件增量审计"这一具体设计, 而非 SHIPS+ 式的联合增强预测因子集重训练。codex 独立核实并补充了一处需要收紧的表述: 本轮 novelty quick-check 把 Flora et al. (arXiv:2603.20250) 的 U-Net 称为"raw-tensor"先例, 但 codex 通读全文确认其实际输入是经过时间聚合/ensemble statistics 处理后的 63-channel 2D 张量, 并非完整 96h 原始历史张量; 下一版应把它改称"grid-based precedent", 不宜称为与 v10 完全同构的"raw-4D precedent"。这一纠正收窄但不消除既有差异化空间。
+
+## Quality
+
+评估视角: topic (`topics/0710-causal-scs.md`) 未声明 `target-venue`/`preferred-contribution-types`（Claude 与 codex 独立核实一致）。沿用 v7-v9 review 的"顶级 Earth-system methods / AI4Science / 强对流预测应用"稿件标准。
+
+| Dimension | Score | Notes |
+|-----------|-------|-------|
+| Logical gaps | 6/10（Claude 与 codex 独立评估一致，较 v9 的 4/10 明显提升） | 本轮核心修复经 Claude 独立读码（`cnn_fusion_helpers.py`）与 codex 独立复核一致确认为真实: `raw` 分支是完整 96h 原始张量 `fields.permute(...)` 直接喂入 `Conv3d`, 无任何手工聚合特征; `raw`/`sham`/`causal` 三条件通过 `inputs.shape[1]` 共享同一 `RawTensorCNN` 架构, `tests/test_cnn_fusion_helpers.py` 显式断言三者 `parameter_count` 相同 (687 in the tiny test config)。剩余缺口 (Claude 与 codex 独立收敛到几乎相同的清单): (1) v10b 架构是在看到 v10 (global pooling) 失败后选择的, 虽只改了一处 (`AdaptiveAvgPool3d(1)`→`(4,2,2)`, Claude 独立 diff 确认), 但仍是"看了结果再选架构", 需要未来一轮独立冻结架构复核; (2) 即便在 v10b 中, 8 个 seed 里仍有 1 个 (`20260901`) raw 分支训练损失停在 0.6931 (卡在 log(2)), Claude 独立计算发现该 seed 的 causal-minus-raw 增量 (+0.297) 是全部 8 个中最大的异常值, 拉高了汇总均值 (若剔除该 seed, 均值会从 0.065 降到约 0.032, 更接近零)——这一异常值目前被直接平均进汇总而未被诊断或标注, 但方向上是让 NULL 结论更保守而非制造虚高, 不构成 cherry-pick; (3) codex 独立指出一个 Claude 未充分权衡的更深问题: "capacity-matched" 只匹配了下游 CNN 的参数量, 未把外部 `(D,J)` 特征提取器本身对 true edge/true lag 的 oracle 知识计入比较, 即 `(D,J)` 通道享有"已知真实耦合位置和真实滞后"的信息优势, 这一优势不会被同参数量的 CNN 架构抵消; (4) Gaussian sham 只控制维度和随机噪声, 不控制"任何结构化、确定性的非因果 lag/covariance 表示"这一更强的替代解释 (idea 自己的 P2 计划已列入"raw+非因果 lag 特征"但本轮未运行)。 |
+| Missing evidence signals | 4/10（Claude 与 codex 独立评估一致，较 v9 的 3/10 略有提升） | 仍缺: 独立冻结的现代时空架构族 (P2 路线图已提及 transformer/DiT, 但本轮不实现)、结构化非因果 lag-map 对照 (P2 计划中, 未跑)、更多 seeds 与预注册功效/精度停止规则 (当前 8-seed bootstrap 区间仍较宽, 对 0.02 的目标增量而言检验力有限)、pair-within-seed 两阶段重采样、真实 PCMCI+/LKIF (当前仍是 fixed-edge local regression proxy)、graph-null/familywise 校准 (v6 的 null 校准审计只覆盖了旧的 factorial_helpers pipeline, 未覆盖本轮新引入的 CNN+8-seed-bootstrap pipeline 本身, Claude 独立指出这一点)、storm-relative/advection-matched 真实执行、以及任何真实连续 4D storm 证据 (仍是 0%)。 |
+| Narrative | 7/10（Claude 初评 8, 采纳 codex 更严格证据后下修为 7, 已收敛） | 自我纠错叙事真实且诚实 (下方 provenance 核验证实), 没有把首轮规则内 POSITIVE 包装成科学胜利, 明确把 v10b 标注为 post-result diagnostic, 这是本轮最大的叙事进步。但 codex 指出两处仍需收紧的措辞 (Claude 认同): (a) Expected outcome 中"最便宜证伪已完成"表述不准确——`+0.065 [-0.013,+0.154]` 是较宽的 NULL 区间, 并未真正证伪"存在实用增量"这一假设, 只是未能确认它; (b)"v10 首次直接回答 owner 的原始张量问题"这一表述应明确限定为"在单一合成 DGP、一个事后选择架构的微型 CNN 上"作答, 而非无条件地称为该问题的首次直接回答。 |
+| Venue contribution | 3/10（Claude 与 codex 独立评估一致，较 v9 的 2/10 略有提升） | 仍是 oracle planted-edge 的 100% 合成 pilot, 无新方法也无真实气象发现。global-vs-position pooling 反转本身是有教学/诊断价值的 comparator-adequacy 案例, 可以成为未来论文中一项有力的消融实验, 但不能单独构成 top-venue 贡献。 |
+| Testability | 6/10（Claude 初评 8, 采纳 codex 具体证据后下修为 6, 已收敛） | Expected outcome 对 REAL-4D 阶段的 Delta AUPRC/CI/校准/复现标准清楚, AUROC/AUPRC 指标本轮已统一 (v9 遗留问题已修复)。但 codex 指出一个 Claude 初评未捕捉的具体不一致: pilot 代码 (`summarize_cnn_results`) 把 `signal="NEGATIVE"` 的判据设为 `causal-minus-raw AUPRC CI 上界 < 0`, 而 idea 正文 Claims matrix 对"无实用增量"的判据是 CI 上界 `< 0.01`——这是两个不同的阈值 (statistical harm vs. practical non-inferiority margin), 当前文本未区分, 容易在下一阶段造成判定混淆。此外 n=8 的 seed-bootstrap 区间宽度 (约 ±0.08-0.09) 相对 0.02 的目标增量而言检验力有限, 使其作为"最便宜证伪"的效力打折扣。 |
+| Outcome realism | 5/10（Claude 初评 7, codex 给 4, 部分采纳 codex 论据后收敛到 5） | `(D,J)` 是 raw tensor 的确定性函数这一信息论框架依然自洽, 且本轮结果与该框架预期一致, 值得肯定。但 codex 指出的关键点是: 即便在 oracle true edge/true lag、专门设计对 `(D,J)` 有利的合成条件下, 可信 raw comparator 之上仍只得到宽区间 NULL——十轮里已有约九轮持续得到零/负结果, 这本身是对"REAL-4D 阶段能达到 Delta AUPRC>=0.02 且 CI 下界>0.01"这一 Expected outcome 目标的现实性的实质性负面证据, 该目标当前看起来偏乐观 (虽非不可能)。 |
+| Contribution type compliance | n.a. | idea types = {empirical-finding, diagnostic, application}；topic 未声明 `preferred-contribution-types`, 跳过, 不计入 Overall Quality 平均（Claude 与 codex 一致）。 |
+| Overall Quality | 5/10（Claude 收敛后 (6+4+7+3+6+5)/6≈5.2→5, codex 直接给 5, 两者一致） | v10 是九轮以来在实验设计上最扎实的一轮: owner 反复要求的"真正原始张量端到端模型"缺口本轮被真实兑现并经独立验证; 但新发现的细节缺口 (capacity-matched 未覆盖 (D,J) 的 oracle 位置/滞后知识、sham 未覆盖结构化非因果替代解释、NEGATIVE 阈值与 Claims matrix 阈值不一致) 与 Quality 提升大体抵消, Overall Quality 相对 v9 (4/10) 仅小幅上升。 |
+
+## Contribution Drift (n >= 2)
+
+- v_{n-1} (v9) contribution types: {empirical-finding, diagnostic, application}
+- v_n (v10) contribution types: {empirical-finding, diagnostic, application}
+- Status: unchanged
+- Hard cap triggered: no（topic 未声明 `preferred-contribution-types`；即便声明, 本轮也无扩张/删除, Claude 与 codex 独立核验一致）
+
+### v9 `<review>` concern 逐条复核（Claude 独立核验 + codex 独立核验，两者收敛一致）
+
+| v9 concern | Status | Assessment |
+|---|---|---|
+| 对照必须是"原始 4D 场端到端训练的模型", v9 实际用的是 12 个手工聚合特征上的 LR/RF | **resolved** | Claude 独立读码确认 `cnn_fusion_helpers.py` 的 `raw` 分支是完整张量直接喂入 `Conv3d`, 无手工特征; codex 独立复核结论一致。v10b 的架构选择发生在看到 v10 失败之后, 是本轮唯一需要标注的限定。 |
+| raw 只看最近 24h 而 `(D,J)` 隐含利用近 96h 历史 (时间窗口不对齐) | **resolved** | 三条件 (`raw`/`sham`/`causal`) 均读取完整 96h 张量, Claude 与 codex 独立核实一致。 |
+| hour 族 12 个滚动窗口 vs day 族 7 个滚动窗口 (窗口数不对称) | **resolved** | Claude 独立读 `four_d_helpers.rolling_beta_maps` 与 `cnn_fusion_helpers.matched_beta_maps` 确认: 后者用 `common_lags = union(hour_lags, day_lags)` 强制两族共享同一组 7 个窗口终点 `{60,66,72,78,84,90,96}`, JSON `shared_window_count=7` 印证; codex 独立核实一致。 |
+| 缺 dimension-matched sham/noncausal 对照 | **partially resolved** | Gaussian sham (维度/参数量匹配) 已完成并经 `parameter_count` 断言测试验证; 但"结构化非因果 lag 特征"对照仍只列入 P2 计划, 本轮未运行 (Claude 与 codex 独立指出同一缺口)。 |
+| P0 单 seed、无 CI，与 P1 8-seed 不对称 | **resolved** | P0 本轮重算为 8-seed + seed-bootstrap CI, Claude 与 codex 独立核实数字与 JSON 完全一致。 |
+| day J/D+J 错误 lag 结果高于真实 lag 未被披露为例外 | **resolved** | v10 明确写出 day J 在错误 lag=36h (0.619) 与真实 lag=24h (0.618) 几乎持平、不具 lag 特异性, Claude 独立核实该数字与 JSON `inside_injected__J_auroc_mean` 完全一致。 |
+| RF raw mean AUROC 四舍五入错误 (0.770 应为 0.768)，最小单-seed delta 应为 -0.145 | **resolved** | Claude 独立从 `results/ml_fusion_pilot_results.json` 重新计算 RF raw mean = 0.76806640625 (四舍五入为 0.768, 非 0.770) 与最小 delta = -0.14453125 (四舍五入为 -0.145)，与 v10 正文一致。 |
+| 遗漏错误 lag/区域外数值范围 0.456-0.642 | **resolved** | Claude 独立扫描 P0 全部错误 lag/outside 单元格, 确认最小值 0.456 (hour lag=1h outside)、最大值 0.642 (day lag=36h inside) 与 v10 正文范围完全一致。 |
+| pilot 决策规则用 AUROC、正式 Expected outcome/Claims matrix 用 AUPRC 未统一 | **resolved** | v10 统一以 AUPRC 为主指标并计算 CI, AUROC 降为诊断性指标（Claude 与 codex 独立核实一致）；但 codex 另外发现一个新的、未被此条覆盖的阈值不一致问题（见 Testability）。 |
+| storm-relative/advection 对照同时出现在 P1.5 与 P3，归属不清 | **resolved** | v10 明确把该对照的完整执行责任收拢到 P1.5, P3 不再重复列出（Claude 与 codex 独立核实一致）；但对照本身仍未实际执行。 |
+| 缺 graph-null 校准、familywise 校正、功效分析 | **partially resolved** | 仍列为 P1.5 强制门, 本轮未新增证据；这类分阶段处理有其合理性, 但不能无限期推迟到确认性应用结果之后（codex 独立提出同一保留意见）。 |
+| SHIPS+ 被误写为剪枝/替换算子 | **resolved** | codex 独立重新核验 SHIPS+ 全文摘要, 确认 v10 沿用的"增补"表述准确。 |
+| Alternative Framing 建议 (收紧为多 seed P0 重刻画 + raw-tensor CNN/U-Net + sham + 因果特征三方比较) | **resolved, 已成为本轮蓝图** | v9 review 提出的两步走建议基本就是 v10 实际执行的设计, 不只是"未忽视", 而是被直接采纳为本轮工作蓝图。 |
+
+## Alternative Framing
+
+Claude 与 codex 收敛到同一个方向（codex 表述更精炼, Claude 采纳并补充一句落地路径）：把主线进一步收紧为"确定性气象衍生表示的 comparator-adequacy 与 sample-efficiency 审计"——不只是问"`(D,J)` 能否增益", 而是系统化研究"架构瓶颈 (如 global pooling 抹除位置信息) 在什么条件下会人为制造虚假增量、以及 `(D,J)` 在何种样本量/架构下仍可能有真实增益"。global-to-position pooling 反转已经是这一更宽框架下的第一个具体案例。这一重新框架不引入任何 topic `preferred-contribution-types` 之外的类型 (topic 本身未声明该字段)，但要让它把 Likelihood 从 Low 抬升到 Medium, 仍需要跨独立冻结架构、结构化非因果对照与真实 storm 证据的验证, 本轮尚未达到。
+
+## Claims Discipline
+
+Claude 与 codex 收敛后的版本（较 idea 正文 Claims matrix 更严格, 尤其区分了 statistical harm 与 practical non-inferiority margin）：
+
+| Outcome | Supportable claim |
+|---------|------------------|
+| POSITIVE | 只有在**独立冻结**的原始时空模型 (而非本轮"看到失败后选择"的架构)、相同历史与容量预算、outer storm holdout、结构化非因果对照 (不只是 Gaussian sham)、校准不退步、跨 season/架构复现、且通过预设 Delta AUPRC 阈值后, 才能限定声称该 `(D,J)` 实现为这些模型提供了有限样本增量归纳偏置。不得声称"增加了信息"或"识别了真实大气因果机制"。 |
+| NULL | 当前只能说: 在一个 planted-edge 合成 DGP、8 seeds、事后选择架构的位置保留微型 CNN 上, 观察到 causal-minus-raw 的正点估计但 CI 跨零 (`+0.065 [-0.013,+0.154]`)。不能声称 raw 模型已吸收全部信号, 也不能称该表示无效; 该结果甚至没有真正"证伪"实用增量假设, 只是未能确认它。 |
+| NEGATIVE | 需要先冻结一个实用差异阈值 (如 0.01-0.02), 并以功效充分的 CI 排除该阈值, 且在多个独立冻结的合格 raw 架构与真实 storm splits 上复现, 才能称该具体表示在限定范围内没有实用增量。当前 pilot 代码把 `NEGATIVE` 定义为 CI 上界 `<0` (statistical harm), 与 Claims matrix 里"无实用增量"要求的 CI 上界 `<0.01` 不是同一个判据, 下一版应明确区分这两种不同强度的负面结论, 且都不得外推到全部因果表示。 |
+
+## Likelihood-Impact Matrix
+
+- Priority: Medium = Likelihood: Low x Impact: High
+- Numeric score for ideas.xml: 5
+- Rationale:
+  - Likelihood: Claude 与 codex 独立评估完全一致, 判定 Low, 无分歧。理由: v10 修复了 owner 反复要求的最严重 comparator 缺陷 (真正原始张量端到端 CNN), 但即便在 oracle true edge/true lag、专为 `(D,J)` 设计有利条件的合成场景下, 可信 raw comparator 之上仍只得到宽区间 NULL——这是新增的、对最终成功概率不利的证据, 而非仅仅"尚未证实"。真实阶段还需要连续 HRRR/SPC 数据解除 stop gate、真正的 PCMCI+/LKIF、storm-relative/advection 控制的真实执行、结构化非因果对照、graph-null/familywise 校准、独立冻结的架构、以及跨 >=2 季节/>=50 个独立 storm systems 的复现同时成立, 条件连乘且新发现的 capacity-matching 遗留问题意味着下一版设计仍需继续打磨。
+  - Impact: Claude 与 codex 独立评估完全一致, 判定 High, 无分歧。理由: 若最终在严格独立冻结的 raw-tensor baseline 上跨季节、跨架构获得真实增量, 或建立起功效充分、可推广的失败边界, 将实质回答"因果衍生的时空不稳定性能否为现代天气 ML 提供该模型自身学不到的归纳偏置"这一问题, 对该研究线有明确价值; 但 SHIPS+ 已确立"因果特征增强既有强预测器"这一路线的可行性先例, 本工作本身不提出新方法也不提供新信息来源, 故不到 Exceptional。
+  - 查表: Low x High = Medium (5)。topic 未声明 `preferred-contribution-types`, hard cap 不适用。Claude 与 codex 在 Likelihood 和 Impact 两个轴上均无分歧, 无需额外标注; 与 v9 review 的 Likelihood/Impact 判断相同, 故 numeric score 与 v9 (5) 持平——Quality 的实质提升未改变 Likelihood/Impact 这两个独立轴的判断。
+
+## Overall
+
+- Priority: Medium
+- Score: 5
+- Comments: v10 是十轮以来在实验设计执行上最扎实的一轮——Claude 与 codex 独立核验了完整的 git 预注册时序 (commit `d706fc1`→job `36939149`→commit `74e7cb0` 记录该结果并预注册位置保留架构→job `36939215`→commit `05d47ad` 记录该结果)、JSON 数值 (global 0.547/0.543/0.746, position 0.690/0.515/0.755, causal-minus-raw `+0.065 [-0.013,+0.154]`, causal-minus-sham `+0.240 [0.164,+0.312]`)、以及全部九项 v9 review 具体问题的修正, 均未发现伪造时序或选择性报告数字的迹象; "第一版全局池化 CNN 因弱 raw 训练制造虚高增量、换架构后重跑" 的自我纠错叙事经独立核验为真, 不是事后包装。但本轮结论仍是"弱 raw comparator 会把 NULL 制造成表面 POSITIVE", 而不是 `(D,J)` 已提供预警增量——十轮里已有约九轮在不同公平性水平的对照下得到零/负结果, 这是不利于 REAL-4D 阶段最终成功的实质性证据, 而非仅仅"尚未验证"。Claude 与 codex 在 Likelihood、Impact 两个轴上完全一致, 无需标注分歧; Quality 子项上 codex 在 Testability、Outcome realism 上给出比 Claude 初评更严格的具体证据 (NEGATIVE 阈值与 Claims matrix 阈值不一致、oracle 条件下持续 NULL 对 Expected outcome 现实性的负面含义), Claude 采纳后下修收敛, Overall Quality 最终与 codex 一致 (5/10)。就整体方向而言: idea 阶段已经把 owner 提出的核心方法论问题 (真实端到端模型对照) 真实、诚实地回答了一遍, 剩余的具体缺口 (独立冻结架构、结构化非因果对照、真实数据、校准) 更适合作为 proposal/experiment 阶段的具体任务清单, 而非继续在 idea 阶段做第十一轮相似规模的合成 pilot 打磨。
+
+</review>
