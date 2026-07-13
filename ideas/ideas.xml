@@ -40,7 +40,7 @@
   <idea slug="fex-prose-defect-correct" topic="0616-fex" date="2026-06-25" current_version="1" score="3">
     <one-line>用 PROSE 粗解 u0 做 defect correction, 令 FEX 仅搜索符号修正项 delta_u = u - u0, 测试修正项是否落在更低复杂度的 S_k 子空间中从而指数缩小搜索空间.</one-line>
   </idea>
-  <idea slug="causal-scs-indicator" topic="0710-causal-scs" date="2026-07-10" current_version="9" score="5">
+  <idea slug="causal-scs-indicator" topic="0710-causal-scs" date="2026-07-10" current_version="10" score="5">
     <one-line>因果效应估计的不稳定性 (方差/突变/DAG 结构变化) 本身作为强对流事件的预警指标.</one-line>
   </idea>
 </ideas>
