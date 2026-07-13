@@ -38,6 +38,6 @@
     <one-line>piloting: 1D Poisson u* vs delta_u 表达式树深度对比.</one-line>
   </workspace>
   <workspace slug="causal-scs-indicator">
-    <one-line>v8 明确扩展到 pressure-level × longitude × latitude × time：v7 等权融合勘误为 10/16 负、6/16 含零；L4 合成 smoke 正确恢复跨层空间 pattern 与 3 h/24 h lag，但 held-out 融合选择 raw-only、Delta=0；真实逐小时 HRRR 仍受 stop gate 阻塞。</one-line>
+    <one-line>v9 把 raw 基线换成真训练分类器：P0 确认 (D,J) 在真实 lag/区域内确有事件分离信号 (D AUROC 0.70)；P1 中 logistic/random forest 在更强的 trained raw baseline (AUROC 0.75-0.77，远超 v8 的 0.693 百分位统计) 之上加 (D,J) 后 Delta AUROC 95% CI 跨零，NULL；真实逐小时 HRRR 仍受 stop gate 阻塞。</one-line>
   </workspace>
 </workspaces>
