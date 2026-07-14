@@ -254,3 +254,24 @@ flowchart TD
 If you want the manuscript to be especially persuasive for ESSD reviewers, present the benchmark as a **community resource with immediate reuse**. That means including a “getting started” example, split files, baseline code, clear access instructions, one DOI for the dataset, and ideally a separate DOI for the release code. ESSD’s policies on data access, repository criteria, and data citation make these items more than “nice to have.” citeturn9search4turn13search1turn13search3turn13search6
 
 In summary: your proposed architecture is scientifically meaningful, publication-suitable, and likely novel enough **if** you frame it as an **open, provenance-rich, warning-relevant, multimodal severe-convection benchmark**, rather than just a collection of files around storms. The biggest opportunity is the combination of **MRMS/raw radar**, **long-duration environment**, and **warning/report evaluation**. The biggest practical threats are **license mixing, label ambiguity, and hidden temporal leakage**. If you solve those cleanly, the resulting dataset would stand apart from existing open resources and would be well positioned for an ESSD-style data descriptor. citeturn3search0turn4search8turn21search15turn13search16turn13search9
+---
+
+## 新增相关论文 [idea-reviewer, 2026-07-13]
+
+以下均经 arxiv-tools info/tex 或出版方页面核验 (标注核验方式):
+
+- **TorNet** (arXiv:2401.16437; AIES 2025; Veillette, Kurdzo, Stepanian et al.) [arxiv info + tex 核验]: 从 10 年 storm events 采样的全分辨率偏振 WSR-88D Level-II 龙卷检测/预测基准, 附 ML/DL baselines 与开源代码权重. 纯雷达, 无环境场、无预警 lead-time 任务.
+- **Storm250-L2** (arXiv:2510.16031, 2025-10, A. Shi) [arxiv info + abs 页核验]: 沿 GridRad-Severe 风暴轨迹裁剪 250 m NEXRAD Level-II 的风暴中心雷达数据集 (HDF5 + manifests). 纯雷达. **已于 2026-06-25 撤稿**, 理由: "dataset construction yielded insufficient event coverage to support the intended ML use cases" — 对本 topic 是一个直接的事件覆盖率/可行性警示.
+- **Coffer, Parker, Coniglio, Homeyer — Supercell environments using GridRad-Severe and the HRRR** (arXiv:2503.15466, 2025) [tex 全文核验]: 客观识别的 supercell 数据集 (观测风暴运动) 配对 HRRR 高分辨率分析, 研究 SRH 层深对龙卷预报技巧; 属科学分析论文. 数据声明: GridRad-Severe 在 NCAR RDA、HRRR 在 AWS、SPC SFCOA 需联系 SPC — 配对产品本身未作为 ML 基准开放发布. 说明 "风暴轨迹 + HRRR 环境" 配对已在业内使用, 但没有基准化.
+- **HR-Extreme** (arXiv:2409.18885, Ran et al.) [arxiv info 核验]: 从 HRRR 3 km 数据提取极端天气 cases 的高分辨率数据集, 评估 SOTA DL 预报模型并给出 HR-Heim baseline. 面向格点预报误差评估, 非风暴事件包, 无雷达序列/事件标签封装.
+- **Extreme Weather Bench (EWB)** (arXiv:2605.01126, McGovern, Mandelbaum, Rothenberg, Loveday, Potvin, Flora, Magnusson, Gilleland, Allen, 2026-05) [arxiv info 核验]: 社区驱动的高影响天气**评估框架**: ~300 个全球 case studies (含对流 outbreak、热浪、大西洋河等), 观测数据 + impact-based metrics + 开源代码, 含美国以外 (加/澳) storm reports. 是 verification suite 而非训练 ready 的多模态事件包数据集; 对本 topic 的 warning/评估任务构成部分占位, 应作为评估协议引用与差异化对象.
+- **Stormscope** (arXiv:2601.17268, Pathak, Abbas, Harrington et al. (NVIDIA 等), 2026-01) [arxiv info 核验]: GOES 多波段 + 地基雷达训练的 transformer 生成扩散模型族, 10 min / 6 km, 1–6 h 达到或超过业务中尺度 NWP; 观测直达 nowcasting 模型论文, 非数据集; 其训练语料未作为基准发布.
+- **Flora, Varga, Potvin, Lang — ML watch-to-warning guidance from WoFS** (arXiv:2603.20250, 2026-03) [arxiv info 核验]: 用 2019–2023 HWT 春季实验 108 天 WoFS 集合预报训练 HGBT/U-Net, 输出 2–6 h SPC outlook 式严重天气概率, 超过 2–5 km UH 校准 baseline. 数据为内部整编, 非开放基准.
+- **Leinonen, Hamann, Germann, Mecikalski — Nowcasting thunderstorm hazards using machine learning: the impact of data sources on performance** (NHESS 22:577, 2022, doi:10.5194/nhess-22-577-2022) [出版方页面核验]: 用 NEXRAD 雷达/GOES-16 ABI/GLM/ECMWF NWP/DEM 共 106 个预测变量, GBT 模型 nowcast 雷达反射率、闪电、45 dBZ echo top (0–60 min). 结论: 雷达最重要; NWP 对所有目标有用且相对重要性随 lead time 增加, 但 **omission 分析显示 NWP 缺失可被观测信息大体补偿** — 对 "短 lead time 下环境场增量" 是直接的先验负面证据.
+- **CIDS** (Scientific Data 2026, doi:10.1038/s41597-026-06902-3) [出版方/检索核验]: 中国东南部 CI 检测与 nowcasting 数据集, 2018–2023 年 3–9 月, 10 种雷达 mosaic 产品 (0.01°) + FY-4A 9 波段辐射, 10 min 间隔, 含强降水/雷暴大风/冰雹事件采样. 无 NWP 环境场、无预警 lead-time 任务.
+- **Feng et al. — 美国 MCS/IDC 统一观测数据产品** (ESSD 13:827, 2021, essd-13-827-2021) [出版方检索核验]: 2004–2017 美国落基山以东 4 km/hourly MCS 与孤立深对流统一追踪数据产品 (FLEXTRKR, 卫星亮温+雷达+降水). 对象追踪型数据产品先例, 无环境场事件包/预警标签.
+
+## 补充核验: 蓝图中两个关键对照 [idea-reviewer, 2026-07-13]
+
+- **SEVIR** (NeurIPS 2020, Veillette, Samsi, Mattioli) [NeurIPS proceedings 页面核验]: 五模态 (GOES-16 C02/C09/C13 + NEXRAD VIL mosaic + GLM 闪电) 时空对齐, 384 km × 384 km, 固定 4 h 事件窗; 部分事件已链接 NOAA Storm Events 获取灾害描述. **不含 NWP/环境场**.
+- **MYRORSS — Comprehensive Radar Data for the Contiguous United States** (BAMS 103(3), 2022) [AMS/NOAA registry 检索核验]: 用 MRMS 框架融合 WSR-88D 雷达与 **Near-Storm Environment (NSE) 模式分析**, 1998–2011, CONUS ~1 km / ~5 min, 17 种产品 (3D 反射率/MESH/VIL/SHI/AzShear 等), AWS Open Data 开放. 非 ML 基准 (无 canonical tasks/splits/baselines), 但证明 "雷达 + 近风暴环境" 捆绑发布已有先例 — 本 topic 的 "无一以环境场为一等公民" 绝对表述需要降格为组合层面的差异化表述.

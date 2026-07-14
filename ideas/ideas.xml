@@ -43,7 +43,7 @@
   <idea slug="causal-scs-indicator" topic="0710-causal-scs" date="2026-07-10" current_version="10" score="5">
     <one-line>因果效应估计的不稳定性 (方差/突变/DAG 结构变化) 本身作为强对流事件的预警指标.</one-line>
   </idea>
-  <idea slug="scs-env-benchmark" topic="0713-scs-benchmark" date="2026-07-13" current_version="1" score="none">
+  <idea slug="scs-env-benchmark" topic="0713-scs-benchmark" date="2026-07-13" current_version="1" score="7">
     <one-line>以风暴为中心、把长时窗环境场 (HRRR) + 雷达 (MRMS) + 事件标签 (NOAA Storm Events) 统一封装成事件包的开放强对流基准数据集, 填补现有开放集无一以环境场时空演变为一等公民的空白.</one-line>
   </idea>
 </ideas>

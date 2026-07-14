@@ -22,3 +22,54 @@ workspace: workspace/scs-env-benchmark/
   - Metric: 加入环境场相对纯影像基线在 CSI@阈值 / FSS (nowcasting) 或 POD/FAR (CI) 上的增量; 若核心任务上出现可测量且方向一致的增益 (如 CSI 相对提升超过预设阈值), 信号为正。
   - Result: pending
   - Signal: SKIPPED (跳过 idea-creator 阶段, 未运行 pilot; 建议作为 refine / 阶段一实验第一步执行)
+
+<review date="2026-07-13">
+
+## Novelty
+
+- Score: 5/10
+- Closest prior work: SEVIR (NeurIPS 2020; 事件中心五模态 4h 窗, 已链接 Storm Events, 无环境场); MYRORSS (BAMS 2022; MRMS 框架融合雷达 + 近风暴环境分析, 1998-2011, 非 ML 基准); Coffer et al. 2025 (arXiv:2503.15466; GridRad-Severe 风暴轨迹 + HRRR 环境配对, 分析论文非开放基准); Extreme Weather Bench (arXiv:2605.01126, 2026; 高影响天气评估框架含对流 outbreak cases 与全球 storm reports, 非训练数据集).
+- Key differentiator: "长时窗环境**演变**序列 + 风暴中心 MRMS + 事件/预警标签 + canonical splits/baselines" 的一次性现代开放封装经多源检索确无占坑者 (Storm250-L2 arXiv:2510.16031 为最近似的风暴中心封装尝试, 纯雷达, 且已于 2026-06-25 因事件覆盖不足撤稿). 但 idea 的绝对表述 "现有开放集无一以环境场为一等公民" 不成立 — MYRORSS 已捆绑近风暴环境分析. 无方法新颖性 (预期内, benchmark idea); 真正可能新颖的是 "环境增量随 lead time/区域/季节如何变化" 的 empirical finding. 注意 Leinonen et al. 2022 (NHESS 22:577) 已在 0-60 min 雷暴 nowcasting 中测试 NWP 输入并发现其缺失可被观测大体补偿 — 对 pilot 所选的 0-2h 短 lead 增量是直接的先验负面证据.
+
+## Quality
+
+| Dimension | Score | Notes |
+|-----------|-------|-------|
+| Logical gaps | 4/10 | (i) 数据模型仅含 Storm Events (事后报告), 无 NWS warning/CAP 档案源, "预警 lead-time 评估" 任务与数据源不闭合; (ii) 无负例/非事件采样设计, CI 检测、FAR 与预警任务不可识别; (iii) 时窗设计: +5d 环境入预测输入即后视泄漏 (仅可回顾分析), -15d 无物理论证 (topic 引用的理想化湿度实验是小时尺度) 却是主要成本驱动; (iv) HRRR f00/f01 的 issue-time/可用延迟约束未处理; (v) pilot 的 "纯 MRMS vs +环境" 二元对比不能证明"长历史"价值, 至少需 contemporaneous/短历史/长历史三档消融; (vi) "事件聚类区域" 承载事件包与 splits 定义但从未被定义. |
+| Missing evidence signals | 3/10 | 缺: 逐年×区域×灾害的事件与负例覆盖矩阵 (Storm250-L2 正因 "insufficient event coverage" 撤稿, 该风险已被实证); MRMS-HRRR-标签完整交集与缺测率; 每事件体量/下载吞吐/总存储审计; 逐源再分发 license 结论; split 邻近泄漏审计. Pilot 标记 SKIPPED, 全部主张目前零证据. |
+| Narrative | 6/10 | "现有资源按用途割裂" 的 gap 故事有力, 且组合层面经核验成立; 但六任务 + 双 venue 同时追求摊薄主线, 绝对化 gap 表述会被审稿人用 MYRORSS 一击反驳. |
+| Venue contribution | 6/10 | ESSD: in kind 合格, 成败取决于 provenance/QC/license 执行 — 这正是 topic 自己声明的评估维度; NeurIPS D&B (2026 已更名 Evaluations & Datasets, 要求明确 evaluation question): 六任务宣称 + 一个小 pilot 不够, 需环境增量的稳健证明. |
+| Testability | 5/10 | 便宜 pilot 具体可执行 (1 季节 × 1 区域, ±环境 ConvLSTM, CSI/FSS/POD/FAR), 值得肯定; 但作为证伪器欠功效且逻辑歧义 — 单区单季 null 无法区分 "数据无信息/融合失败/任务选错", 且把 ESSD 数据产品可行性与 0-2h 环境增量过度耦合 (后者按 Leinonen 2022 先验最可能为 null). 需预注册最小实际效应、独立事件数与历史长度消融. |
+| Outcome realism | 4/10 | 单区单季 pilot 数周内现实; 但 "-15d..+5d 全量环境场 + 六任务标签 + 三种 splits + 两层 baselines + DOI/QC/license/provenance" 在数月内整体交付不可信; 按事件复制长窗 3D 场存储失控, 需去重资产层 + derived parameters 才现实. |
+| Contribution type compliance | 10/10 | idea types {benchmark, application} ⊆ preferred {benchmark, application, empirical-finding}: yes |
+| Overall Quality | 5/10 | 方向有价值且 venue 对口, 但任务-数据源闭合、无泄漏时间语义、负例、覆盖率、体量五个硬缺口未闭合, 当前版本不是 proposal-ready. |
+
+## Contribution Drift (n >= 2 only; n=1 写 N/A)
+
+N/A (v1). Hard cap triggered: no.
+
+## Alternative Framing
+
+收窄为一个 availability-aware、leakage-audited 的 storm-environment 数据产品 (ESSD 主线): 核心贡献 = 事件索引 + 覆盖/质量审计 + provenance + 标签不确定性 + 去重资产层; 环境模态首选 HRRR f00/f01 派生探空参数时间序列 (CAPE/CIN/SRH/STP 等, hourly, 物理可辩护的 -72h..+24h 窗, 仅土壤湿度等 land-state 异常保留更长回溯), 而非全 3D 场; 示范分析聚焦一个明确的 evaluation question — "环境增量随 lead time (0-2h vs 2-6h)/区域/季节如何变化" (empirical finding, 在 preferred types 内), 以 CI/pre-convective 分类为旗舰环境敏感任务而非 0-2h 反射率 nowcasting. 该框架同时服务 ESSD 与 NeurIPS E&D, 不引入越界贡献类型.
+
+## Claims Discipline
+
+| Outcome | Supportable claim |
+|---------|------------------|
+| POSITIVE | 仅可声称: 在预注册任务、模型族、issue-time-safe 输入与 held-out 年份/区域上, HRRR 环境上下文相对雷达-only 产生超过最小实际效应的增量预测信息; 不可声称因果作用、普适提升或六任务全部受益. |
+| NULL | 仅可声称: 当前样本量/模型/lead-time 下未检出超阈值增量; 数据产品的 ESSD 价值 (过程诊断/评估底座/复用) 独立成立, 但必须放弃 "环境场带来预报增量" 的卖点表述. 当前 idea 把 null 一律记为失败, 与 ESSD 路径不符, 需解耦. |
+| NEGATIVE | 环境输入在多个 held-out split 稳定劣化 → 仅可声称所测环境表示/融合方案不稳健; 覆盖/license/体量失控 → 仅可判定当前发布规格不可行, 不否定研究问题本身. |
+
+## Likelihood-Impact Matrix
+
+- Priority: High = Likelihood: Medium x Impact: High
+- Numeric score for ideas.xml: 7
+- Rationale: Likelihood = Medium — ESSD 数据描述路径明确且以工程执行为主, 数据源全部公开可得; 但成稿依赖若干条件: 事件/负例覆盖充足 (Storm250-L2 撤稿证明该风险真实)、warning 源补齐、issue-time 泄漏语义闭合、license 矩阵干净、体量收缩到可发布规格; 若走 NeurIPS E&D 还需环境增量成立 (短 lead 有先验负面证据). Impact = High — 最乐观情形下成为被社区采用的环境-雷达-预警统一开放基准, 统一并加速一条明确的强对流 ML 研究线 (env-aware nowcasting/warning), 并为姊妹 idea 提供数据底座; 但不引入方法/理论、不推翻领域共识, 未达 Exceptional.
+
+## Overall
+
+- Priority: High
+- Score: 7
+- Comments: 有潜力做成强 ESSD 数据产品的 benchmark 方向, 组合层面 gap 经核验成立; 但 v1 的绝对 gap 主张被 MYRORSS 证伪, 且 warning 标签源缺失、负例设计、issue-time 泄漏、事件覆盖率、存储体量五个硬缺口需在 refine 中闭合. Claude 与 codex 双轴判断一致 (Medium × High → 7), 无 >= 1 level 分歧; 未触发 contribution-scope hard cap. 另注: frontmatter 指向的 workspace/scs-env-benchmark/ 目录尚不存在.
+
+</review>
