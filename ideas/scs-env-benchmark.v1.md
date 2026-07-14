@@ -73,3 +73,21 @@ N/A (v1). Hard cap triggered: no.
 - Comments: 有潜力做成强 ESSD 数据产品的 benchmark 方向, 组合层面 gap 经核验成立; 但 v1 的绝对 gap 主张被 MYRORSS 证伪, 且 warning 标签源缺失、负例设计、issue-time 泄漏、事件覆盖率、存储体量五个硬缺口需在 refine 中闭合. Claude 与 codex 双轴判断一致 (Medium × High → 7), 无 >= 1 level 分歧; 未触发 contribution-scope hard cap. 另注: frontmatter 指向的 workspace/scs-env-benchmark/ 目录尚不存在.
 
 </review>
+
+## Deep-lit 精读关键发现 [dispatcher, topic-scope, 2026-07-14, 累计 54 篇完整整合]
+
+对照 2026-07-13 review 提出的 6 个硬缺口逐条核对本轮 topic-scope deep-lit（54 篇, 详见 `topics/0713-scs-benchmark-landscape.md`）能提供什么, 结论: **3 个缺口有文献级证据/可移植设计可直接闭合, 3 个缺口仍完全开放, refine 时不要误以为已解决**。
+
+### 已获文献支撑、可在 refine 直接采用
+
+- **缺口 (v) pilot 设计缺陷（二元对比不能证明"长历史"价值）**：`2512.08974`（FuXi-Nowcast）给出直接反驳材料——环境模态增量随 lead time 系统性增大（0–2h 小、2h+ 递增；去掉 3D 大气场变体在 dryline CI 个例上完全失败）。这精确定位了 Alternative Framing 引用的 Leinonen et al. 2022 负面先验的适用范围（该先验只在 0–60min 尺度成立）。**具体建议**：把 pilot 从"纯 MRMS vs +环境"单一二元对比改成 **0–2h / 2–6h / 6–12h 三档 lead-time sweep**，预期信号方向是短 lead 增量小、长 lead 增量显著——这既回应了 review 要求的三档消融，又让 pilot 同时具备"证实"和"证伪"两种可能结果，比原设计更具信息量。
+- **缺口 (iv) HRRR f00/f01 issue-time/延迟约束未处理**：三篇独立来源给出可直接抄的处理范式——`2512.08974` 定量化了 train-on-analysis/infer-on-forecast 的 shift 幅度（CR@50dBZ 12h 掉 25.4%，且非均匀）并给出"选最近可用 cycle"的业务规则；`2601.17268`（Stormscope）明确把 ERA5(reanalysis)-train vs GFS(forecast)-infer 的切换记为需要在 provenance 显式声明的决策点；`2605.06944`（AIMIP）的 CO₂-as-clock 案例是同类"训练态/推断态不一致导致隐性泄漏"的独立佐证。**具体建议**：事件包 schema 必须给每个环境场字段一个 issue-time/product-type 元数据位（analysis=f00 / short-forecast=f01 / reanalysis），且 canonical task 定义中显式声明训练与评测各用哪一种，不能隐式假设两者一致。
+- **缺口 (ii) 无负例/非事件采样设计**：`2605.01126`（EWB）的"zero-tornado + <10-hail 负样本日"判据与 `2401.16437`（TorNet）的三类采样（confirmed / 困难负样本 / random）+ Julian-day-mod-20 防泄漏 split 都是可直接移植的负例设计模板，不需要从零设计。
+
+### 仍完全开放, refine 不能假装已解决
+
+- **缺口 (i) NWS warning/CAP 档案源缺失**：本轮 54 篇里没有一篇提供"如何把 NWS CAP 预警档案接入训练数据管线"的现成方案——多篇（2603.20250 watch-to-warning、2508.06859 MeteorPred）都在用预警/watch 相关标签，但均为机构内部数据，不能解决我们的开放数据源问题。这个缺口需要独立的数据可得性调研（NWS CAP 历史档案的公开程度、格式、许可），deep-lit 无法替代。
+- **缺口 (iii) 时窗设计缺物理论证（-15d 无依据、+5d 后视泄漏）**：`2004.11636`（idealized sounding physics）证明的是"垂直结构瞬时敏感性"，时间尺度是小时级 CM1 模拟，不能背书 -15 天这个具体数字；`2310.11631`（未来 SCS 环境变化）是气候变化尺度，同样不支撑。**没有一篇论文为"事件前 15 天"这个具体窗口长度提供物理依据**——refine 时要么找到能证明该窗口的文献（如边界层土壤湿度记忆时间尺度的研究），要么把窗口长度改为可辩护的更短值（如 idea review 建议的 -72h），不能沿用 v1 的 -15d 不做修正。
+- **缺口 (vi) "事件聚类区域"从未被定义**：没有一篇 deep-lit 论文直接定义我们需要的"事件聚类区域"算法, 但有可移植的候选算法可供选择——`2012.00679` 的两遍 enhanced watershed（大面积阈值+小面积阈值+实心度 QC 迭代）和 `2310.03349`(AgentCaster) 的 PPF (KDE→盘卷积→Poisson) 均可用于把离散 Storm Events 报告聚合成连续空间区域，但选哪个、参数怎么调仍需 refine 阶段自行决定并验证，不是文献自动给出的答案。
+
+**结论**：本轮 deep-lit 把 review 六个硬缺口中的三个（ii/iv/v）从"无方向"推进到"有可执行设计", 但 (i)/(iii)/(vi) 仍需 refine 阶段独立解决, 不能靠更多文献调研自动闭合——建议下一轮 refine 优先处理这三个, 而不是继续开新的 deep-lit round。

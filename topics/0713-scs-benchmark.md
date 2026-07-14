@@ -1,4 +1,3 @@
-<!-- 书写报告使用中文 -->
 ---
 # 目标 venue: 数据描述类期刊为主, 兼顾 ML 基准 track。
 target-venue: [ESSD (Earth System Science Data), "NeurIPS Datasets and Benchmarks"]
@@ -6,6 +5,7 @@ target-venue: [ESSD (Earth System Science Data), "NeurIPS Datasets and Benchmark
 # 这是一个数据集 / 基准 idea, 不是方法新颖性 idea。评估按数据贡献维度 (填补空白 / 整编严谨性 / 可复现 / 可用性) 判断。
 preferred-contribution-types: [benchmark, application, empirical-finding]
 ---
+<!-- 书写报告使用中文 -->
 
 # 强对流环境–雷达多模态开放基准数据集 (SCS Environment Benchmark)
 

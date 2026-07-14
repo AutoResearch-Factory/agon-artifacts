@@ -10,10 +10,99 @@
 
 ---
 
-## 已读论文 arxiv_id 清单 (deep-lit 维护, 初始为空)
+## 已读论文 arxiv_id 清单 (deep-lit 维护)
 
 <!-- deep-lit-tick 每读一篇经核验的论文, 在此登记 arxiv_id + 一行结论。 -->
-(尚未开始 deep-lit; 初始为空。)
+
+**状态 (2026-07-14, topic-scope tick, 第 4 次 resume 完成整合)**: 累计 54 篇, 全部零撞车 (无一篇发布"环境场为一等公民的风暴中心多模态开放事件包"), B4 饱和条件已满足 (依据见文末"Deep-lit 综合结论"节)。按主题分组, 每篇一行结论。全部经 `arxiv_tool.py info/tex` 核验。
+
+### A. 标签源质量 / 理论机理支撑 (4 篇)
+
+| arxiv_id | 标题(简) | 一行结论 |
+|---|---|---|
+| 1606.06973 | NOAA Storm Events 数据库可靠性短评 | 损失字段缺失过半、量级码混乱、$115B 录入错误 — 我们 QC/不确定性标记设计的一手动机证据 |
+| 2004.11636 | 理想化 SCS 探空物理模型 (Chavas & Dawson) | CM1 实验证明 bulk 诊断量相同的探空可产生完全不同风暴演变 — 环境场须存完整垂直结构而非仅 CAPE/CIN 派生量的核心物理依据 |
+| 2310.11631 | 未来 SCS 环境垂直结构变化 (CMIP6) | 变暖使低层 shear/SRH 增强; 消费 SCS 环境数据的科学研究范例, 印证垂直剖面变量清单需求 |
+| 2503.15466 | Supercell 环境 (GridRad-Severe + HRRR) | 同一物理问题因数据集构建选择(网格/SM 来源/时空过滤)得出相反结论 — 标准化基准必要性的直接证据 |
+| 2512.14304 | 全球雷暴环境气候变率 (BTE 数据集) | CAPE×WS06 阈值标定数据集, 证明"thunderstorm environment dataset"命名空间已有人占, 需在 novelty 段划清 severe vs occurrence-climatology 边界 |
+
+### B. 直接对照 / 近邻数据集与基准 (12 篇, novelty 段必须逐一对表)
+
+| arxiv_id | 标题(简) | 一行结论 |
+|---|---|---|
+| 2401.16437 | TorNet | 头号先例: 事件驱动+Storm Events 标签+雷达 benchmark, 但零环境场、单 hazard、chip 快照式 — 差异化基线 |
+| 2409.18885 | HR-Extreme | HRRR+Storm Events/SPC 骨架最接近的先行者, 但是预报评测集 (t=3h 快照, 无 provenance/QC/DOI 整编), 需显式对表 |
+| 2510.16031 | Storm250-L2 | 风暴中心 250m NEXRAD 事件包, 纯雷达单模态, **已于 2026-06-25 因事件覆盖不足撤稿** — 直接印证 idea review 提到的覆盖率风险为真实风险 |
+| 2512.17924 | UK curated rain radar 数据集 | "雷达序列+环境标量特征"抽象模式已被占先 (2025-12); 差异化须落在 SCS 特化而非该抽象模式本身 |
+| 2406.11217 | WeatherQA | SPC MCD 文本+渲染图 VLM QA 基准; 缺时间演变、渲染档案止于 2020、标签无实况校验 — 反面证据 |
+| 2409.19058 | CLLMate | 新闻事件×ERA5 日均缩略图 MLLM 基准; 无时间窗/雷达/官方事件库 |
+| 2412.02780 | WxC-Bench | 6 任务 ML-ready "dataset of datasets"; 环境场仅单时刻快照用法, 实证我们 gap 声明 |
+| 2508.06859 | MeteorPred / MP-Bench | **最近邻 prior work**: ERA5 4D×CMA 预警文本 42 万对+MLLM; 差异化轴= SCS 专用类别/实况标签/pre-storm 提前量/气象检验指标 (POD/FAR/CSI) |
+| 2508.12291 | RadarQA | SEVIR 之上的雷达质量评估文本层 (RQA-70K); 无环境场/事件标签, 佐证生态位空缺 |
+| 2510.03349 | AgentCaster | LLM-agent 龙卷预报基准, 环境场降维成 PNG 图像 — 反向验证本 topic 立项 gap |
+| 2510.04017 | Zephyrus | 气象 agentic 框架+ERA5 基准, 极端天气检测 F1≈0.00-0.04, 评测基建 (三段式抽取-验证-打分) 可平移 |
+| 2601.23268 | TCBench | 事件中心任务定义→统一 schema→四级 baseline→三层 metrics 的完整骨架, 是**最佳同型模板**（非撞车，领域不同） |
+
+### C. 协议式基准谱系 (全球/气候尺度 model-intercomparison, 定位参照非竞品, 9 篇)
+
+| arxiv_id | 标题(简) | 一行结论 |
+|---|---|---|
+| 2308.15560 | WeatherBench 2 | 全球中期场变量基准范式起点; 设计三要素(开放云数据+开源评测代码+持续更新网站)是我们交付物验收标杆 |
+| 2409.09371 | WeatherReal | 站点实测评测基准; ERA5 系统性低估极端天气的证据链可直接引用支撑"须用 HRRR 级环境场"主张 |
+| 2604.16643 | WP-MIP | WMO 首个 AI/混合/物理三方对比计划; KE 谱能量亏损证据支撑"需要风暴尺度专用基准" |
+| 2605.01126 | Extreme Weather Bench (EWB) | 首个社区高影响天气评估基准; 把环境压缩成单一 CBSS 标量, 反向强化环境场一等公民空白 |
+| 2605.06944 | AIMIP Phase 1 | 首个 AI 气候模型互比协议; CO₂-as-clock 泄漏案例直接支撑"时间泄漏须显式记录"原则 |
+| 2605.24945 | RealBench | 2025 零泄露测试年+11539 站点+事件级指标; "现有 benchmark 不反映业务条件"的量化证据 |
+| 2602.00622 | "What is a realistic forecast?" | Popper 式三层 realism (functional/structural/physical) 评估框架, 可作 canonical metrics 组织骨架 |
+| 2606.10642 | PhysMetrics.Weather | NeurIPS E&D Track 论文, 九指标物理一致性评估; **目标 venue 结构先例**(Related Work 对比表范式可直接借鉴) |
+| 2606.29172 | CORDEX-ML-Bench | 13 机构 40 ML 配置区域降尺度基准; 作者自陈 sub-daily/对流尺度为最高优先级未来方向 — 反向印证空白成立 |
+
+### D. 评估方法论 / Metrics 工具箱 (4 篇)
+
+| arxiv_id | 标题(简) | 一行结论 |
+|---|---|---|
+| 2306.11249 | OpenSTL | NeurIPS D&B 同 track 方法基准先例, 代码库可作 nowcasting baseline zoo, 论文结构可作提交模板 |
+| 2401.15305 | Practical Probabilistic Benchmark (lagged ensemble) | 无偏 CRPS + 去偏 SER 公式进 canonical metrics; time-lagged ensemble 概率基线可零额外存储成本落地 |
+| 2510.25045 | Threshold-weighted spatial verification (HiRA+twCRPS) | 评分协议可翻转模型排名的实证 — SCS 事件天然空间对象, 不能用点对点 CSI/RMSE |
+| 2606.21170 | Weighted Potential CRPS | twCRPS 逐格点历史分位阈值+records 双口径进 canonical metrics; 警示: 弱基线会使 skill 虚高 |
+
+### E. 环境 → 对流/灾害 ML 应用 (motivation + baseline 素材, 8 篇)
+
+| arxiv_id | 标题(简) | 一行结论 |
+|---|---|---|
+| 2208.02383 | CSU-MLP day4-8 RF 强对流概率 | 业务级工作训练对仍 ad hoc 不开放; 验证协议(BSS+AUROC+reliability)可作 baseline 模板 |
+| 2012.00679 | WoFS ML 概率校准 | 数据 upon-request 不公开; Table 1 环境变量清单是我们 HRRR 抽取清单的选型起点 |
+| 2509.08802 | ML 降尺度环境变量预测对流空间频率 | 16 变量清单+Steiner 掩膜代码可直接复用; 模拟世界内静态映射, 无时间演变 |
+| 2505.11750 | Transformer 后处理 AI 预报做强对流预测 | lead-time-as-token 证明环境时间序列携带预测技巧; 更高分辨率完整环境场是其点名的 future work |
+| 2504.00128 | 统计后处理神经天气模型预测阵风 | +44%~215% CRPSS 增益是"环境场信息值钱"最干净定量证据; GEV+CRPS loss 任务模板 |
+| 2603.20250 | WoFS watch-to-warning ML 指导 | 数据 upon-request、WoFS 无公共档案 — 实证"无公共可比基准"空白; UH-NMEP 可作 canonical 基线 |
+| 2606.26699 | 冷锋对流单体发生 XGBoost | 欧洲最活跃冷锋对流 ML 线也建立在不可再分发数据上; 60 变量 ERA5 清单+防泄漏标注规则可直接借鉴 |
+| 2501.06907 | DL/基础模型天气预报综述 | 60+ 数据集附录逐条核验"无一把环境场时空演变当一等公民"; baseline menu 参照 |
+
+### F. Nowcasting 模型 (SOTA 消费者视角, gap 证据 + 协议先例, 13 篇)
+
+| arxiv_id | 标题(简) | 一行结论 |
+|---|---|---|
+| 2211.13181 | WSR-88D 速度退模糊 DL | 雷达 QC 单模态工程已成熟, 反衬多模态封装才是真空白; Storm Event 驱动采样+时间切分先例可引 |
+| 2310.09392 | ML 反演雷达最大垂直速度 | WoFS 训练/GridRad-Severe 评估需手工谐一化 — "重复造轮子"活体证据 |
+| 2310.16015 | GOES-16 CI nowcasting + XAI | 零环境场输入, 作者自认时间信息缺失致误报— 一手 gap 证据; CI 三条件定义可复用 |
+| 2507.16219 | 贝叶斯 DL CI 临近预报 UQ | 单月单区域, 无环境场; UQ 评测套件(BSS 分解+discard test)可定为 canonical UQ metrics |
+| 2507.05658 | HRRRCast | NOAA 自建 emulator 都要重复造 HRRR 管线且踩坑(GFS T2M 遗漏); Table 1 变量清单+f00/f01 语义讨论直接支撑数据模型设计 |
+| 2512.08974 | FuXi-Nowcast | **本轮最强先验证据来源**: 环境增量随 lead time 增大(0-2h小/2h+递增), 修正"短 lead 环境增量为 null"的先验预期; issue-time 语义(f00 analysis vs f01 forecast)业务先例 |
+| 2601.17268 | Stormscope (NVIDIA) | 2026 工业 SOTA 刻意仅用 Z500 单通道环境条件, 自证更密条件有增益但无开放数据产品 — 旗舰级 gap 佐证 |
+| 2602.05204 | exPreCast (KMA 雷达) | 平衡极端天气 benchmark 已被 ICLR 接受为一等贡献的先例 (motivation 层可引) |
+| 2604.02818 | MAG-Net (卫星+雷达融合) | CMA 域方法论文私有数据无 splits; Band Power Ratio 抗糊图指标值得纳入 metric 套件 |
+| 2604.15377 | M3R (站点+雷达多模态) | 加雷达空间语境使站点雨率 RMSE 降 22% — 跨模态封装有预测增益的近期证据 |
+| 2604.24224 | IMPA-Net | 环境输入仅静态地形, 时变环境场明确列为 future work — 支持我们"4D 环境特征"定位 |
+| 2605.24067 | MeteoLogist (GridRad-Severe 消费者) | 手搓数据管线暴露"缺规范化 SCS benchmark"需求清单; HKUST-GZ 组有转投 D&B track 风险, 需尽快锁定差异化 |
+| 2606.18436 | GNN 多模态降水消融 (Nordic) | NWP 只用最近快照 — 反向印证环境场静态化是普遍现状 |
+| 2606.25937 | Event-aware loss (KMA 闪电) | 闪电权重图标签流水线可迁移; KMA 内部数据管线再次证明三模态对齐数据只能各自私建 |
+
+### G. 基准设计范式参照 (非天气领域, 1 篇)
+
+| arxiv_id | 标题(简) | 一行结论 |
+|---|---|---|
+| 2506.13652 | PeakWeather (瑞士站点观测) | 站点类开放基准, 与我们互补支撑"环境场从未当一等公民"论述; contributions 三段式+双许可写作模板可参照 |
 
 ## 已确认撞车风险 / 候选对照数据集 (待 arxiv-tools + 官网核验)
 
@@ -275,3 +364,37 @@ In summary: your proposed architecture is scientifically meaningful, publication
 
 - **SEVIR** (NeurIPS 2020, Veillette, Samsi, Mattioli) [NeurIPS proceedings 页面核验]: 五模态 (GOES-16 C02/C09/C13 + NEXRAD VIL mosaic + GLM 闪电) 时空对齐, 384 km × 384 km, 固定 4 h 事件窗; 部分事件已链接 NOAA Storm Events 获取灾害描述. **不含 NWP/环境场**.
 - **MYRORSS — Comprehensive Radar Data for the Contiguous United States** (BAMS 103(3), 2022) [AMS/NOAA registry 检索核验]: 用 MRMS 框架融合 WSR-88D 雷达与 **Near-Storm Environment (NSE) 模式分析**, 1998–2011, CONUS ~1 km / ~5 min, 17 种产品 (3D 反射率/MESH/VIL/SHI/AzShear 等), AWS Open Data 开放. 非 ML 基准 (无 canonical tasks/splits/baselines), 但证明 "雷达 + 近风暴环境" 捆绑发布已有先例 — 本 topic 的 "无一以环境场为一等公民" 绝对表述需要降格为组合层面的差异化表述.
+
+## Deep-lit 综合结论 [dispatcher, topic-scope, 2026-07-14, 第 4 次 resume 完整整合]
+
+### B4 饱和判定: 已满足
+
+累计 5+ 轮、54 篇论文（本次 resume 收尾 7 篇: 5 篇上轮遗留 + 1 篇补读缺失 + 1 篇 B7 新发现）。本轮对最后 7 篇（含上轮遗留的 6 篇）执行了完整的 dispatcher 级 B7 反向扩展（references + cited + author-search + title-term-search，28 次调用，S2 429 限流下部分退化到 arXiv 兜底但四项均执行），结果呈现清晰的饱和信号：
+1. 候选池大量重复撞见已读论文（2510.25045、2604.24224、2605.06944、2308.15560、2602.00622、2501.05648、2402.00712 等反复出现于不同论文的引文/反引文/关键词检索）。
+2. 唯一有全文可读的新发现（PhysMetrics.Weather, 2606.10642）已读完，属于"协议式基准/评估框架"簇——该簇已有 AIMIP、CORDEX-ML-Bench、WP-MIP、forecast-realism 四篇代表，边际新颖度低。
+3. 其余候选绝大多数是无关领域噪音（系外行星、LLM、GenIR、宇宙学、量子机器学习、犯罪预测、山火风险、CT 影像等）或已被证明结构性无法深读的期刊专属条目（SEEPS4ALL, DOI:10.5194/essd-18-713-2026；MT-GAN, DOI:10.1109/LGRS.2024.3522463——均确认无 arXiv 预印本，仅记录标题/摘要供后续参考，不计入已读清单）。
+4. 全程 54 篇零真实撞车：没有任何一篇发布"环境场时空演变为一等公民的风暴中心多模态开放事件包"。最近邻分别在各自维度上缺一角（TorNet/HR-Extreme/Storm250-L2 缺环境场，MeteorPred/CLLMate/WeatherQA 缺雷达原始场或实况标签，AIMIP/CORDEX-ML-Bench/WP-MIP 缺风暴尺度，MYRORSS 缺现代 ML 基准封装）。
+
+符合 [[deep-lit-tick-ops]] 记录的饱和经验规律（候选池中心从直接语义重叠漂移到同领域泛化噪音 + 已读论文被反复重新推荐）。不再开新 B1 search round。
+
+### 跨论文提炼的可执行设计输入（供 idea/proposal refine 直接消费）
+
+- **环境变量选型**：多篇给出可直接比对/合并的现成清单——2012.00679 Table 1（WoFS 校准消费的 environment/intra-storm 两组变量）、2509.08802 Table 1（16 个 28km 变量）、2606.26699 Table A1（60 个 ERA5 变量, 含 RFECV 精选 12 个）、2507.05658 Table 1（HRRRCast 操作验证过的 HRRR 变量/层位清单）、2512.08974 SI Table S1（数据模型 datasheet 模板）。四份清单在 CAPE/CIN/SRH/shear/湿度廓线上高度重合，可作变量集选型的交叉验证基准。
+- **Issue-time / 泄漏语义（回应 idea review 硬缺口 iv）**：2512.08974（FuXi-Nowcast）给出业务级 f00(analysis)/f01(forecast) 语义讨论 + 定量化的 train-on-reanalysis/infer-on-forecast shift（CR@50dBZ 12h −25.4%）；2601.17268（Stormscope）与 2605.06944（AIMIP 的 CO₂-as-clock 案例）都是"环境场来源必须显式标注分析/预报/再分析"的独立佐证。三篇合起来构成事件包 provenance 层"issue time 元数据"设计的直接依据。
+- **环境增量随 lead time 的先验修正（回应 idea review 的 pilot 设计缺陷 v）**：2512.08974 提供关键正面证据——环境模态增量在 0–2h 小、2h+ 显著递增（w/o 3D 大气场变体在 dryline CI 个例完全失败）。这与 idea review 引用的 Leinonen et al. 2022（0–60min 尺度上 NWP 输入可被观测大体补偿，负面先验）并不矛盾，而是精确定位了负面先验的适用窗口——短 lead。**建议 pilot 设计从"单一 0–2h 二元对比"改为"0–2h / 2–6h / 6–12h 三档 lead-time sweep"**，这是本次 deep-lit 对 idea v1 review 最直接、可立即采纳的修正。
+- **负例/事件覆盖率设计（回应硬缺口 ii, iii）**：2605.01126（EWB）的"zero-tornado + <10-hail 负样本日"判据、2401.16437（TorNet）的三类采样（confirmed/困难负样本/random）+ Julian-day-mod-20 防泄漏 split，都是可直接移植的负例设计先例。2510.16031（Storm250-L2）因"事件覆盖不足"撤稿是覆盖率风险的实证案例，应在 proposal 风险登记中引用为前车之鉴。
+- **Canonical metrics 套件**：evaluation protocol 一节可整合 twCRPS/PCRPS（2606.21170, 2510.25045）+ HiRA 邻域法 + FSS/CSI/POD/FAR 网格法 + MODE/SAL 对象法 + V/D/F 三层框架（2602.00622）+ 物理一致性检查（2606.10642），并强制要求气候学强基线（2606.21170 警示：弱基线致 skill 虚高）。
+- **Venue 结构模板**：2606.10642（PhysMetrics.Weather, NeurIPS E&D Track 录用）与 2601.23268（TCBench, IOP Benchmarks）是撰写 Related Work 对比表与 D&B 提交结构的最直接范式参照。
+
+### 竞争态势观察（非撞车，但需持续关注的临近赛道）
+
+- HKUST-GZ 组（2605.24067 MeteoLogist 作者）已手握完整 GridRad-Severe 处理管线 + 11 基线复现，tex 注释显示知晓 NeurIPS E&D track，存在转投数据集论文的风险——应尽快锁定差异化（环境场配对、初生前 lead-time 评测、object-based 打分）并考虑加速时间线。
+- "气象 MLLM/QA 基准"赛道（WeatherQA→CLLMate→MeteorPred→RadarQA→AgentCaster→Zephyrus）2024–2026 快速拥挤，但全部集中在评测/QA 层，无人做数据底座层——这是本 topic 定位仍然成立的结构性原因，但需要在 novelty 章节明确"数据产品 vs 评测框架"这一区分维度本身站得住。
+- "协议式基准"谱系（WeatherBench2→AIMIP→WP-MIP→CORDEX-ML-Bench→PhysMetrics.Weather）持续成熟，均止步于全球/区域气候尺度，sub-daily/对流尺度被多篇（尤其 CORDEX-ML-Bench）明确列为最高优先级未来方向——若该谱系任一团队在 2026 下半年扩展到风暴尺度，将是本 topic 最直接的撞车风险来源，建议下次 deep-lit 优先复查这几个团队的后续工作。
+
+### Watch-list（无 arXiv 全文, 未计入已读清单, 仅记录供未来核查）
+
+- **SEEPS4ALL**（DOI:10.5194/essd-18-713-2026, Ben-Bouallègue et al. 2026, ESSD）：开放降水验证数据集+工具, ESSD 同刊发表先例, 值得作为 venue 对照引用但无法深读。
+- **MT-GAN**（DOI:10.1109/LGRS.2024.3522463, 2025）：多任务 GAN 雷达+闪电 nowcasting, 中国中部域, 期刊专属无 arXiv。
+- **Liu et al. 2026**（S2 无 arXiv ID, 反引文自 2310.16015/2507.16219 两篇独立浮现）：华东南 CI 检测数据集论文, 建议下次若重启本 topic deep-lit 优先人工检索确认范围。
+- Schmidt et al. 2024（3D U-Net 冰雹）、Flora et al. 2025（WoFS ML 标签偏差）——2603.20250 点名的后续精读候选, 关系标签质量/不确定性层设计, 未及在本轮追。
