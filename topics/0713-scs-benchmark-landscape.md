@@ -14,7 +14,7 @@
 
 <!-- deep-lit-tick 每读一篇经核验的论文, 在此登记 arxiv_id + 一行结论。 -->
 
-**状态 (2026-07-14, topic-scope tick, 第 4 次 resume 完成整合)**: 累计 54 篇, 全部零撞车 (无一篇发布"环境场为一等公民的风暴中心多模态开放事件包"), B4 饱和条件已满足 (依据见文末"Deep-lit 综合结论"节)。按主题分组, 每篇一行结论。全部经 `arxiv_tool.py info/tex` 核验。
+**状态 (2026-07-14, topic-scope tick 第 4 次 resume 完成整合 + idea-scope tick(scs-env-benchmark) 追读缺口 i/iii/vi 完成整合)**: 累计 58 篇, 全部零撞车 (无一篇发布"环境场为一等公民的风暴中心多模态开放事件包"), 两级 B4 饱和条件均已满足 (依据分见文末"Deep-lit 综合结论"两节)。按主题分组, 每篇一行结论。全部经 `arxiv_tool.py info/tex` 核验。
 
 ### A. 标签源质量 / 理论机理支撑 (4 篇)
 
@@ -104,6 +104,24 @@
 |---|---|---|
 | 2506.13652 | PeakWeather (瑞士站点观测) | 站点类开放基准, 与我们互补支撑"环境场从未当一等公民"论述; contributions 三段式+双许可写作模板可参照 |
 
+### H. 事件前置窗口物理论证 / 土壤湿度记忆尺度 (idea-scope 追读缺口 iii, 3 篇)
+
+| arxiv_id | 标题(简) | 一行结论 |
+|---|---|---|
+| 2102.08523 | 南非 CI 高分辨率土壤湿度个例 (CTRL/SM 双轨 UM 4.4km) | 高分辨率土壤湿度初始场使 CI 位置误差改善~9%, 但效力在 6–32h 提前量已衰减/被降水反馈污染 — -15 天窗口在此尺度上完全无支撑 |
+| 2412.03049 | GLACE 耦合强度方差分解 (Great Plains 正反馈热点) | 仅季节内(JJA)/年际尺度分析, 无日到周尺度记忆或自相关分析; 大平原是 SCS 核心走廊且为正反馈热点, 为环境特征选型提供旁证 |
+| 2506.13939 | Great Plains 土壤湿度-降水耦合 HDMR 分解 | 同日晨→午后耦合达 40% 方差, 但作者明确剔除天气尺度混杂并承认长期记忆未验证 — 与前两篇一致指向"天"尺度而非"周"尺度 |
+
+**引用级交叉验证 (无 arXiv 全文, 经 S2 元数据核验)**: Rahmati et al. 2024 *Reviews of Geophysics* "Soil Moisture Memory: State-of-the-Art and the Way Forward" (DOI:10.1029/2023RG000828, 被引92) 与 Findell et al. 2024 *GMD* (DOI:10.5194/gmd-17-1869-2024) 两篇权威综述均将土壤湿度记忆归类为"天"尺度, 与上述 3 篇一致。**结论: -15 天窗口在文献中是空白而非争议, 时间尺度覆盖小时→同日→季节→年际全谱系无一支持, 建议 refine 采用 review 已给的 -72h 替代方案。**
+
+### I. 风暴/云对象追踪算法 (idea-scope 追读缺口 vi: "事件聚类区域"算法选型参考, 1 篇全文 + 引用级候选)
+
+| arxiv_id | 标题(简) | 一行结论 |
+|---|---|---|
+| 2505.10850 | 拓扑 (merge tree + OT) 低层云追踪 | 提供无 ground-truth 追踪器对比的代理指标方法论 (轨迹时长分布/沿轨迹物理量标准差/轨迹线性度损失/锚点匹配距离), 可直接移植为"事件聚类区域"算法选型的评测协议; 确认 tobac/PyFLEXTRKR 为主流基线 |
+
+**候选算法引用级清单 (无 arXiv 全文, 供 refine 阶段选型, 从此前 2 个扩展到 6+ 个)**: 2012.00679 (two-pass enhanced watershed)、2310.03349 AgentCaster (PPF: KDE→盘卷积→Poisson)、tobac v1.5 (Sokolowsky et al. 2024, *GMD*, 社区标准)、**PyFLEXTRKR** (Feng et al. 2023, *GMD*, DOI:10.5194/gmd-16-2753-2023, 被引90, 专为对流云设计, 推荐作为默认候选)、**MCSMIP** (Feng et al. 2025, *JGR*, DOI:10.1029/2024JD042204, 被引26 — 10-tracker 互比基准, 证明追踪器选择对结果影响达 2–3 倍, 选型本身需要论证而非想当然)、Zan et al. 2019 (DOI:10.1016/j.atmosres.2018.12.007, storm split-merge)、Muñoz et al. 2018 (DOI:10.1016/j.atmosres.2017.10.027, enhanced object-based tracking)。**结论: 选型证据已充分, 具体选哪个是 refine 阶段的工程决策, 非文献自动给出答案 (部分覆盖, 判定为可结束追读)。**
+
 ## 已确认撞车风险 / 候选对照数据集 (待 arxiv-tools + 官网核验)
 
 以下数据集来自用户蓝图, 是最可能的"撞车/baseline/可复用"对象, **均未核验**, deep-lit 阶段须逐一核实其真实范围、时窗、模态、许可与是否已含环境场:
@@ -119,6 +137,8 @@
 ## 候选原始数据源 (用户设定 + 蓝图扩展, 待核验许可与再分发条款)
 
 MRMS (雷达融合) / NEXRAD Level II (单雷达矩) / GLM (闪电) / IGRA·RAOB (探空) / ERA5 (再分析) / HRRR·WoFS (高分辨 NWP) / GOES ABI (卫星) / ISD·ASOS·MADIS (地面) / SMAP (土壤湿度) / USGS 3DEP (地形) / NOAA Storm Events·SPC·NWS CAP (事件与预警标签)。
+
+**NWS warning/CAP 档案可得性 (idea-scope 追读缺口 i, 2026-07-14, 非文献路径解决)**: arXiv/S2 对此主题几乎零命中 (信息量本身); 改用 WebSearch 直接命中两个可执行数据源 —— **Iowa Environmental Mesonet (IEM, mesonet.agron.iastate.edu)**: NWS VTEC warning/watch/advisory 处理版下载 (shapefile/CSV/KML/Excel), Tornado/Severe-T-storm 回溯至 1986 年, 公共领域许可, **2007-10-01 是 polygon 官方化的关键时间断点** (之前为 county-based, 之后为 storm-based polygon, 拼接数据集时须显式处理); **NCEI Service Records Retention System (SRRS)** —— NWS 官方存档层, 国会强制最少保留 5 年。二者组合可完整回答"预警 lead-time 评估"任务的开放数据源问题。
 
 ---
 
@@ -398,3 +418,15 @@ In summary: your proposed architecture is scientifically meaningful, publication
 - **MT-GAN**（DOI:10.1109/LGRS.2024.3522463, 2025）：多任务 GAN 雷达+闪电 nowcasting, 中国中部域, 期刊专属无 arXiv。
 - **Liu et al. 2026**（S2 无 arXiv ID, 反引文自 2310.16015/2507.16219 两篇独立浮现）：华东南 CI 检测数据集论文, 建议下次若重启本 topic deep-lit 优先人工检索确认范围。
 - Schmidt et al. 2024（3D U-Net 冰雹）、Flora et al. 2025（WoFS ML 标签偏差）——2603.20250 点名的后续精读候选, 关系标签质量/不确定性层设计, 未及在本轮追。
+
+## Deep-lit 追读整合 (idea-scope: scs-env-benchmark, dispatcher C3 并入, 2026-07-14)
+
+idea-scope deep-lit-tick (2 次 resume) 定向追读 2026-07-13 review 六个硬缺口中被 topic-scope 54 篇标记为"仍完全开放"的三个, 新增 4 篇全文精读 (见上方 H/I 节) + 约 9 篇 DOI-only 引用级证据, 全部零撞车 (工具/证据关系, 非竞品关系)。三缺口判定:
+
+1. **缺口 (iii) -15 天窗口物理论证 — 已覆盖, 无支撑证据**。4 篇独立全文精读 (南非个例/大平原 GLACE/大平原 HDMR) + 2 篇权威综述 (Rahmati 2024, Findell 2024) 交叉验证, 时间尺度覆盖小时→同日→季节→年际, 无一支持 15 天。**refine 动作: -15d → -72h (或其他可辩护的短窗口)。**
+2. **缺口 (i) NWS warning/CAP 档案可得性 — 已覆盖 (非文献路径)**。IEM + NCEI SRRS 给出可执行工程答案 (许可、格式、2007-10-01 关键断点)。**refine 动作: 接入 IEM VTEC 下载接口作为预警标签源。**
+3. **缺口 (vi) 事件聚类区域算法选型依据 — 部分覆盖**。候选从 2 个扩展到 6+ 个 (新增 tobac/PyFLEXTRKR/MCSMIP 等) + 评测方法论 (2505.10850 代理指标) + 选型实证依据 (MCSMIP: 追踪器选择影响达 2–3 倍)。**refine 动作: 在 PyFLEXTRKR (推荐默认)/tobac/watershed/PPF 间做工程选型决策, 非文献自动给出。**
+
+**元发现**: storm-tracking 算法与预警数据基础设施文献系统性不在 arXiv (多为 Elsevier/Copernicus/AGU/GMD 期刊), S2 429 限流下 arXiv fallback 对这两类强领域词几乎全部返回不相关噪声——与 topic-scope 已记录的 S2 429 模式一致, 非本次操作失误。
+
+**idea-scope B4 饱和判定: 已满足**（三目标缺口均有实质进展: 2 个完全覆盖 + 1 个部分覆盖且不再是文献调研问题）。不建议继续开新 idea-scope round; 下一步转入 refine。原始报告: `ideas/scs-env-benchmark-deep-lit-report-2026-07-14.md`。
