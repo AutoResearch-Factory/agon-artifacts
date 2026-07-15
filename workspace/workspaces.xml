@@ -40,4 +40,7 @@
   <workspace slug="causal-scs-indicator">
     <one-line>v10 首次实跑完整 96h 原始网格 CNN：等历史、等 7 窗口、等容量并含 sham；合格的位置保留 CNN 上 raw/causal AUPRC=0.690/0.755，Delta=+0.065 [-0.013,+0.154]，NULL；P0 的 D 通道跨 8 seed 定位真实 lag，但 day J 仍不具 lag 特异性，真实逐小时 HRRR 继续受 stop gate 阻塞。</one-line>
   </workspace>
+  <workspace slug="scs-env-benchmark" date="2026-07-14">
+    <one-line>v2 四源单事件可用性检查 4/4 PASS：IEM warning polygon、NCEI Storm Events、HRRR f00/f01 环境字段和 MRMS 反射率均可取；全量下载等待覆盖率与 PPF 敏感性审计。</one-line>
+  </workspace>
 </workspaces>

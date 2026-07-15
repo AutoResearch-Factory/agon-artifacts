@@ -20,7 +20,7 @@ preferred-contribution-types: [benchmark, application, empirical-finding]
 ## 关联材料
 
 - 源笔记 (用户提供, 本 topic 由其直接转写, 跳过 idea-creator): `/blue/yixin.wen/weikangqian/GitRepo/myproject/SCSDataset_benckmark.md` (idea 一页纸) 与 `SCSDataset_benckmark_report.md` (一份 deep-research 生成的 landscape 蓝图, 已转入本 topic 的 landscape 文件; 其内联 `citeturn…` 标记来自 web-search 工具, 论文引用未经 arxiv-tools 核验, 待 deep-lit 阶段验证)。
-- 同课题组姊妹 topic `0710-causal-scs` (因果效应不稳定性作为强对流预警指标): 与本数据集互补 —— 本基准若建成, 正好为那条 idea 提供长时窗 3km 环境场 + 事件记录的真实数据底座。两者范围不同, 暂各自独立。
+- 同课题组姊妹 topic `0710-causal-scs` (因果效应不稳定性作为强对流预警指标): **明确的上下游数据基础关系** (2026-07-14, idea scs-env-benchmark v2 refine 确认) —— `0713-scs-benchmark` 是上游数据基础, `0710-causal-scs` 是下游消费者。`0710-causal-scs` 的 LKIF 等时变因果强度估计器需要连续多日历史环境场才能给出预热后的读数, 本 topic 的前置环境窗长度 (v2: 192h, 见 idea 文件) 正是按"估计器预热深度 × 想要的事件前读数点数"这一下游需求反推而来, 不是按大气/土壤物理记忆尺度设计的。两者范围仍不同 (本 topic 不做因果分析, 不作因果主张), 但不再是各自独立关系。
 
 ## References
 
