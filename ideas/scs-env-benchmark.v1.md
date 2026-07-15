@@ -91,3 +91,59 @@ N/A (v1). Hard cap triggered: no.
 - **缺口 (vi) "事件聚类区域"从未被定义**：没有一篇 deep-lit 论文直接定义我们需要的"事件聚类区域"算法, 但有可移植的候选算法可供选择——`2012.00679` 的两遍 enhanced watershed（大面积阈值+小面积阈值+实心度 QC 迭代）和 `2310.03349`(AgentCaster) 的 PPF (KDE→盘卷积→Poisson) 均可用于把离散 Storm Events 报告聚合成连续空间区域，但选哪个、参数怎么调仍需 refine 阶段自行决定并验证，不是文献自动给出的答案。
 
 **结论**：本轮 deep-lit 把 review 六个硬缺口中的三个（ii/iv/v）从"无方向"推进到"有可执行设计", 但 (i)/(iii)/(vi) 仍需 refine 阶段独立解决, 不能靠更多文献调研自动闭合——建议下一轮 refine 优先处理这三个, 而不是继续开新的 deep-lit round。
+
+## Deep-lit 缺口追读 [dispatcher, idea-scope, 2026-07-14, 2 次 resume 完成]
+
+针对上面标记为"仍完全开放"的三个缺口 (i)(iii)(vi) 做定向追读（非全 topic 扫描）。本轮共精读 4 篇全文（2102.08523、2412.03049 为 resume 1 派发, 2506.13939、2505.10850 为 resume 2 派发, 均已 wiki_written 并完成 dispatcher 级 references+cited+author+title-term 四项反向扩展）, 另有约 10 篇 DOI-only（无 arXiv 镜像）论文经 arxiv-tool search/S2 核验元数据后作引用级证据采纳。结论：**(iii) 已饱和闭合, (i) 已通过非文献渠道解决, (vi) 从零选型依据推进到候选与评测方法论充分, 选型决策留给 refine 阶段**。
+
+### 缺口 (iii): -15 天前置窗口物理论证 — 饱和, 结论: 无支撑证据, 应放弃 15 天设计
+
+4 篇全文精读的时间尺度形成清晰断层, 无一支持 15 天：
+
+| arxiv_id | 覆盖尺度 | 结论 |
+|---|---|---|
+| 2102.08523 | 6-32 小时（起报提前量） | 南非 CI 个例：高分辨率土壤湿度初始场效力在此尺度已显著衰减/被降水反馈污染 |
+| 2412.03049 | 季节内（JJA）+ 年际/30 年滑动 | GLACE 耦合方差分解：无日-周尺度记忆分析 |
+| 2506.13939 | 严格同日（晨→午后-午夜） | Great Plains HDMR 功能分解：晨间土壤湿度解释午后降水方差最高 40%（GLACE 经典估计~16%的两倍以上）,但作者刻意剔除前 24h 降水样本以排除天气尺度混杂, Discussion 明确承认更长期记忆是未验证方向 |
+
+**引用级交叉验证**（经 arxiv-tool S2 references/search 核验元数据, DOI-only 无 arXiv 镜像, 未获全文）：
+- Rahmati et al. 2024, *Reviews of Geophysics*, "Soil Moisture Memory: State-of-the-Art and the Way Forward"（DOI:10.1029/2023RG000828, 被引 92）— 该领域现行权威综述, 未见任何两周尺度物理机制表述。
+- Findell et al. 2024, *GMD*（DOI:10.5194/gmd-17-1869-2024）— 明确将陆气相互作用按时间尺度分层："minutes (turbulent fluxes), hours (BL growth/decay), **days (soil moisture memory)**, and seasons (behavioral regime variability)"——行业标准文献把土壤湿度记忆明确归类为"天"尺度, 而非两周。
+- Maruf & Kumar 2026, *JHM*（DOI:10.1175/jhm-d-25-0062.1）— CLM5 实验测土壤湿度去相关时标敏感性, 量级仍为天到周。
+- Tavakoli & Dirmeyer 2026, *Nature Sci. Data*（DOI:10.1038/s41597-026-07519-2）— 2412.03049 reader 建议追读的 Dirmeyer 一脉最新工作（非 2011 年那篇, 是 2026 年新数据集论文）, 全球观测陆气耦合指标数据集含 SM memory 一项。
+- Taylor/Klein/Harris 2024 "Multiday Soil Moisture Persistence and Atmospheric Predictability Resulting From Sahelian Mesoscale Convective Systems"（经 2506.13939 引文列表 #3 命中, 标题直击"多日持续性", 但为西非季风区 MCS 而非美国 SCS 环境, 未获全文）; 2308.15196（印度季风核心区个例, 次表层土壤湿度记忆约 2 倍表层, 佐证记忆时标随深度变化但仍非"15 天"量级证据）。
+
+**饱和判定**：4 篇全文精读 + 1 篇权威综述 + 1 篇行业标准时标分层文献, 跨南非/美国大平原/西非萨赫勒/印度季风区/全球尺度, 无一篇支持"事件前 15 天"这一具体窗口长度；现有定量文献的记忆时标要么是小时到天（个例/理论）,要么是季节到年际（诊断）, 中间"1-2 周"区间在 SCS 相关文献中是空白而非有争议或被否定——即找不到反驳"15 天无据"的证据, 也找不到支持"15 天有据"的证据, 与 review 原判断完全一致且现已交叉验证到饱和。
+
+**建议 refine 阶段**：采纳 review 已给出的 Alternative Framing, 把窗口收窄到可辩护的 -72h（土壤湿度/边界层类环境特征）,仅对土壤湿度等 land-state 异常量保留更长回溯（回溯天数需单独论证, 但不再是"15 天"这个具体数字）；若坚持长窗口, 需把论证主体从"土壤湿度记忆"转移到确有多日至季节尺度机制的变量（如大尺度环流型持续性、ENSO 调制——这些有成熟的 1-2 周至季节尺度可预报性文献, 但是完全不同的论证链, 不能与土壤湿度记忆混用）。
+
+### 缺口 (i): NWS warning/CAP 档案可得性/格式/许可 — 已通过 web 搜索解决, 非文献问题
+
+4 组 arxiv-tool 搜索验证了一个负面事实：S2/arXiv 索引里几乎没有专门讨论"NWS CAP 历史档案接入训练管线"的论文, 命中的多为无关领域噪声——这个"零命中"本身有信息量：答案不在论文里, 在数据基础设施文档里。改用 B0 web 搜索直接命中权威答案：
+
+- **Iowa Environmental Mesonet (IEM)**, `mesonet.agron.iastate.edu`（Iowa State University 运营）：提供 NWS VTEC-enabled watch/warning/advisory 事件的处理后 metadata + polygon 几何图形下载接口, 格式含 shapefile+CSV（zip）、KML、Excel。覆盖范围：多数 WWA 类型回溯至 2008 或 2005 年, Flash Flood Warning 至约 2002 年, **Tornado/Severe Thunderstorm Warning 回溯至 1986 年**；自 2005-11-12 起无已知缺口。Storm-based warning polygon 2002 年试验性引入, **2007-10-01 起对部分 VTEC 类型转为正式官方警报**——这个日期是重要的数据集设计断点, 事件包 schema 需显式处理 2007 前后 warning 产品形态不同。
+- **许可**：NWS 网页信息属公共领域, 可免费用于任何合法目的, 限制仅为不可声称己有/不可暗示 NOAA 背书/不可修改后包装成官方材料——与 landscape 已有 NOAA/NASA 许可结论一致, 不引入新许可复杂度。
+- **权威源**：NCEI 的 Service Records Retention System (SRRS) 存档 NWS 观测/预报/警报/公告, 国会要求至少保留 5 年——可作为 IEM 处理版之外的第二数据源, 用于交叉验证或补 IEM 缺口。
+
+**结论**：缺口 (i) 已解决, 不需要再分配文献搜索预算。数据模型可加 `warning_ids`/`report_ids` 字段直接对接 IEM 的 VTEC 下载接口；时窗设计需注意 2007-10-01 polygon 官方化断点；provenance 文档需同时记录 IEM（处理层）与 NCEI SRRS（官方存档层）两个源。
+
+### 缺口 (vi): "事件聚类区域"算法选型依据 — 候选从 2 个推进到 6+ 个, 选型留给 refine
+
+已知两候选（enhanced watershed 2012.00679、AgentCaster PPF 2310.03349）彼此独立、无引用关系。本轮新增：
+
+| 来源 | 类型 | 关键信息 |
+|---|---|---|
+| 2505.10850（全文精读） | 拓扑追踪（merge tree + partial optimal transport） | 第三种独立候选方法；更重要的贡献是**评测方法论**——无 ground truth 场景下用轨迹时长分布、沿轨迹物理量标准差、轨迹线性度损失、锚点匹配距离诊断这套代理指标比较追踪器, 可直接套用于比较 watershed vs PPF vs 其他候选；但其"轨迹线性度高=好"假设与强对流离散传播、快速非线性增强特征相反, 不建议直接迁移方法本体 |
+| tobac v1.5（Sokolowsky/Freeman/Jones 2024, *GMD*, DOI-only 无 arXiv） | 社区标准工具 | Python 开源包, 40+ 同行评审论文使用, 支持任意变量/任意网格追踪（雷达/卫星/模式输出均可）, v1.5 新增 3D 追踪与 split/merge 支持——不想自研算法时最有社区背书的现成选项 |
+| PyFLEXTRKR（Feng et al. 2023, *GMD*, DOI:10.5194/gmd-16-2753-2023, 被引 90） | 专为对流云设计的工具 | 显式处理 merge/split, 已用于 LES（~100m）到中尺度（~10km）多分辨率对流云追踪——比 tobac 更贴近"强对流风暴对象"场景, 是 2505.10850 reader 建议的下一步候选 |
+| **MCSMIP**（Feng/Prein/Kukulies et al. 2025, *JGR*, DOI:10.1029/2024JD042204, 被引 26） | **追踪器互比基准** | 对 DYAMOND 模拟应用 **10 种不同 feature tracker**, 发现观测 MCS 频率上不同追踪器间差异达 2-3 倍——选型依据最直接的证据来源：追踪器选择对下游统计结果影响巨大, 不能假设"随便选一个都差不多" |
+| Zan et al. 2019（*Atmos. Res.*, DOI:10.1016/j.atmosres.2018.12.007, 被引 20） | 雷达专用对比研究 | "Solving the storm split-merge problem"——测试对比多种既有风暴识别追踪方法后提出 CSIT 算法, 30dBZ 阈值+连通域标记, 6 年暖季雷达数据验证 |
+| Muñoz et al. 2018（*Atmos. Res.*, DOI:10.1016/j.atmosres.2017.10.027, 被引 50） | 对流雨暴专用 | "Enhanced object-based tracking algorithm for convective rain storms and cells"——标题直接匹配我们场景, 是 enhanced watershed 之外另一个"enhanced"系族候选 |
+
+**结论（候选已充分, 选型是 refine 阶段工程决策而非文献缺口）**：候选从 2 个扩展到至少 6 个独立方法/工具, 且拿到了可直接套用的评测方法论（2505.10850 代理指标）和选型依据的实证基础（MCSMIP 证明追踪器选择对结果有 2-3 倍量级影响）。这个缺口不能再靠更多文献调研自动闭合。Refine 阶段建议：(a) 若选现成工具, PyFLEXTRKR 因专为对流云/多分辨率设计, 是比 tobac 更贴近场景的默认选项；(b) 无论选哪个, 都应参照 MCSMIP 思路记录追踪器选择对下游任务（nowcasting/CI 检测/事件计数）的敏感性, 而非隐式假设算法无关；(c) tobac/PyFLEXTRKR/Zan2019/Muñoz2018 均为 DOI-only 无 arXiv 镜像（Elsevier *Atmos. Res.*／Copernicus *GMD*／AGU *JGR*）, 后续如需更多细节需通过期刊官网/机构访问获取全文, arxiv-tool 无法进一步深读。
+
+### 元发现：severe-storm 算法与数据基础设施文献系统性不在 arXiv
+
+gap (i) 和 gap (vi) 的搜索反复观察到同一模式：S2 429 限流触发 arXiv fallback 后, 返回结果几乎全部是无关领域噪声（医学影像、天文归档、空间天气、生物追踪算法等）,真正相关的结果几乎全部来自 S2 索引的 Elsevier *Atmospheric Research*、Copernicus *GMD*、AGU *JGR*/*Reviews of Geophysics* 等期刊, 且多数无 arXiv 镜像。这与 gap (iii) 的模式一致（Rahmati 2024 综述、Findell 2024 等也是 DOI-only）。**后续启示**：本 topic 若还要在"数据源工程细节"或"陆气耦合物理机制"这两类问题上做文献调研, 应预期 arXiv 覆盖率低, 优先用 B0 web 搜索或直接查 S2/期刊数据库, 不要依赖 arxiv-tool 的 arXiv fallback。
+
+**新增论文清单（供上层 dispatcher 并入 topics/0713-scs-benchmark-landscape.md, 本 idea-scope 未直接写 landscape）**：2506.13939、2505.10850（均全文精读, wiki_written）；引用级/DOI-only（未获全文, 仅元数据核验）：Rahmati et al. 2024 (DOI:10.1029/2023RG000828)、Findell et al. 2024 (DOI:10.5194/gmd-17-1869-2024)、Maruf & Kumar 2026 (DOI:10.1175/jhm-d-25-0062.1)、Tavakoli & Dirmeyer 2026 (DOI:10.1038/s41597-026-07519-2)、tobac v1.5 (Sokolowsky/Freeman/Jones 2024, GMD)、PyFLEXTRKR (Feng et al. 2023, DOI:10.5194/gmd-16-2753-2023)、MCSMIP (Feng/Prein/Kukulies 2025, DOI:10.1029/2024JD042204)、Zan et al. 2019 (DOI:10.1016/j.atmosres.2018.12.007)、Muñoz et al. 2018 (DOI:10.1016/j.atmosres.2017.10.027)。resume-1 已读的 2102.08523、2412.03049 若上一轮尚未并入 landscape 的 54 篇清单, 亦请一并核对补入。
