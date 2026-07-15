@@ -51,3 +51,58 @@ workspace: workspace/scs-env-benchmark/
   4. 运行 3 个 lead-time × 4 个历史条件的轻量 baseline；主指标 CSI/FSS/POD/FAR，按事件 cluster bootstrap，并报告 held-out year、region 与 season。
   5. 比较 event-level、leave-region-out、leave-year-out，并以日期整体的 Julian-day-mod-20 assignment 审计邻近泄漏。
 - Assets status: 四源单事件访问和字段检查已通过；全量下载等待覆盖与 PPF 敏感性门槛，详见 `workspace/scs-env-benchmark/data/MANIFEST.md`。
+
+<review date="2026-07-14">
+
+## Novelty
+
+- Score: 6/10
+- Closest prior work: MYRORSS — Comprehensive Radar Data for the Contiguous United States (BAMS 103(3), 2022; NOAA/NSSL); 次近邻 TorNet (arXiv:2401.16437)、HR-Extreme (arXiv:2409.18885)、Storm250-L2 (arXiv:2510.16031, 已撤稿)。
+- Key differentiator: 差异不在"首次配对雷达与环境"(MYRORSS 已做), 而在"确认事件索引 + 长历史 HRRR (issue-time/available-time 元数据) + MRMS + IEM/NCEI 预警记录 + confirmed/hard-negative/random 三类样本 + 标准 splits"这一现代开放基准组合。我独立重读 wiki `2510.03349.md`(AgentCaster)、`2012.00679.md`(enhanced watershed)、`2512.08974.md`(FuXi-Nowcast) 全文笔记, 核实 58+4 篇 deep-lit 未见同构产品, 该组合层面 gap 成立。这是数据整编新颖性, 不是方法新颖性; codex 独立评估给出相同分数与相同最近邻判断。
+
+## Quality
+
+| Dimension | Score | Notes |
+|-----------|-------|-------|
+| Logical gaps | 4/10 | 五处 v1 硬缺口中四处 (i/ii/iv/v) 基本闭合, 但 refine 引入两处新的、经我独立核验成立的逻辑问题: (1) **192h 公式与下游 sibling 实际设计不符**——我读取 `ideas/causal-scs-indicator.v10.md` 与 `ideas/causal-scs-indicator-proposal.v3.md` 全文, 确认该下游 idea 历经 v1–v10、proposal v1–v3 十余轮迭代后固定使用 **96h** 历史窗 (`[B,24,96,64,64]` raw tensor, 4 个 72h 子窗终点 `{78,84,90,96}h`, `tau_max=24`), 全篇未出现"72h 估计器预热"、"T0-72h 读数"或"5 个 12h 间隔趋势点"这一结构, 且当前是 fixed-edge local regression proxy 而非真正 LKIF。`H=W+A+(K-1)Δ=192h` 算术自洽, 但 W/A/K/Δ 四个输入参数均无法在 sibling idea 的真实设计或任何引用文献中找到依据——这是"数字精确但输入无据"的推理链, 用"服务下游需求"包装了一个未经验证的假设; (2) **PPF vs enhanced-watershed 的技术对比不准确**：我读 `2510.03349.md` 确认 PPF 本身第一步就是 KDE (σ≈120km) 把离散点变成连续密度场, 再盘卷积+Poisson 变换+栅格转矢量——PPF 同样"构造连续场", 并不像 idea 正文所写"不需要人为构造连续强度场"; `2012.00679.md` 确认 enhanced watershed 也是作用于连续场 (WoFS 集合概率场) 的对象提取算法。两者实为流水线的不同阶段 (点→连续场→离散对象), 不是互斥的替代方案, 该技术表述需要改写为"PPF 是已发表的、专为确认报告设计的点→场转换配方, watershed 缺少这一步的标准做法"才准确。tracker-family 拒绝 (tobac/PyFLEXTRKR/MCSMIP) 本身经核验成立——这些工具面向连续格点场的逐帧对象追踪, 与"把确认报告聚类成事件区域"是不同任务, 该 pushback 有据。codex 独立评审额外指出一个我认可的新问题：用同一事件的**全部**确认报告 (含事件晚期/未来时刻的报告) 定义 PPF 区域, 再把该区域当作预测任务的空间 crop, 存在"用未来信息定义预测边界"的 localization leakage, 与已解决的 issue-time 环境泄漏是不同的泄漏向量, 当前设计未处理。 |
+| Missing evidence signals | 4/10 | Pilot 真实且可复核 (见下节), 但仅证明单日四源可访问与 schema 正确, 不证明跨年份/跨区域覆盖率、真实 availability latency、许可矩阵、PPF 参数稳定性或任何预测增量。30 日覆盖矩阵、逐源再分发条款、报告漏报敏感性 (1606.06973 已证 Storm Events 本身缺失过半损失字段) 均待 handoff gate 通过后执行, 目前是计划而非证据。 |
+| Narrative | 6/10 | 从 v1 的绝对空白声明收窄为组合层面差异化, 叙事纪律明显提升; 但"192h 服务下游需求"被写成既定事实支撑窗口设计, 而非待验证假设, 是当前最大的叙事风险点——一旦 proposal 阶段被指出与 sibling 实际设计不符, 整个时窗论证的说服力会塌陷。 |
+| Venue contribution | 6/10 | ESSD 路径扎实, 且允许环境增量 NULL 结果仍成立数据产品; NeurIPS D&B 路径仍依赖完整覆盖、任务定义和 baseline 尚未跑通。`empirical-finding` 贡献类型合规 (见下), 但目前是预注册计划, 不是被证据挣得的既成贡献。 |
+| Testability | 6/10 | 0–2/2–6/6–12h × 4 历史条件的 sweep 设计具体可执行, 比 v1 单一二元对比更有信息量; 但"覆盖不足"/"PPF 不稳定"/"最小实际效应"均未给出可提前判定的数值门槛, 经验证伪目前只能定性执行。 |
+| Outcome realism | 6/10 | 去重资产层、先冻结区域再全量下载、分阶段 handoff gate (MANIFEST 已写明 5 条) 显著提升可行性可信度, 相对 v1 的"数月内整体交付"更现实; 但全国多年四源交集 + 许可 + QC + DOI + baseline 仍在 3–6 个月内完成偏乐观, 取决于尚未执行的覆盖/敏感性审计结果。 |
+| Contribution type compliance | 10/10 | idea types `{benchmark, application, empirical-finding}` ⊆ preferred-contribution-types `{benchmark, application, empirical-finding}`: yes |
+| Overall Quality | 6/10 | v2 是对 v1 六个硬缺口的诚实、大部分成功的回应 (i/ii/iv/v 闭合良好), 但 refine 过程中新引入的 192h 推理链与其自称的下游依据实际矛盾, 且新发现一处 localization leakage 尚未处理, 使当前版本仍未达到 proposal-ready。 |
+
+## Contribution Drift (n >= 2 only; n=1 写 N/A)
+
+- v_{n-1} contribution types: `{benchmark, application}`
+- v_n contribution types: `{benchmark, application, empirical-finding}`
+- Status: expanded(+empirical-finding)
+- Hard cap triggered: no（`empirical-finding` 在 topic `preferred-contribution-types` 集合内, 非越界扩张；且无 method/theory 被静默移除, topic 本身也未声明这两类）
+
+## Alternative Framing
+
+收紧为 ESSD-first 的 availability-aware severe-convection data contract：PPF 生成的区域只作回顾性资产索引/QC 用途, 预测类任务改用 issue-time 已知的固定网格域或在线锚点作为空间 crop, 避免用同一事件的未来报告定义预测边界 (回应上面新发现的 localization leakage)；历史契约按下游 sibling idea 实际结算的"每次 issue time 需 96h"推导, 192h 可作为面向未来更重估计器的可选冗余供给, 而非包装成下游"必需"的既定事实。此框架仍完全落在 `{benchmark, application, empirical-finding}` 内, 不引入越界贡献类型。
+
+## Claims Discipline
+
+| Outcome | Supportable claim |
+|---------|------------------|
+| POSITIVE | 在预注册 target、模型预算、held-out year/region 与最小实际效应门槛下, issue-time-safe HRRR 相对 MRMS-only 产生增量; 只有当 lead-time 交互项本身显著且跨 held-out 稳健时才能声称"增量随 lead time 增大"。不得声称因果作用、普适提升, 或"192h 是下游必需"。 |
+| NULL | 数据产品 (provenance/QC/splits 合格) 仍可发布; 只能说当前任务/模型/功效下未检出环境或长历史增量, 不能声称环境无信息; 功效充分的 NULL 本身可构成一条克制的 empirical finding。 |
+| NEGATIVE | 覆盖/许可/PPF 区域稳定性任一失败, 仅否定当前发布规格; 若发现 localization leakage 或融合稳定劣化, 仅否定所测表示/任务定义, 不否定环境信息本身或下游因果研究的可行性。 |
+
+## Likelihood-Impact Matrix
+
+- Priority: High = Likelihood: Medium x Impact: High
+- Numeric score for ideas.xml: 7
+- Rationale: Likelihood = Medium——四源单日访问已真实验证 (非合成), ESSD 成稿路径与分阶段 gate 清楚, 但仍需覆盖/许可矩阵、无 localization-leakage 的任务定义、事件区域算法冻结、以及 lead-time×history ablation 本身成立等多个条件连乘; Storm250-L2 因覆盖不足撤稿是同类风险的真实前车之鉴。Impact = High——若最终成为被采用的 issue-time-safe 环境–雷达–预警统一开放基准, 将明显推进并统一强对流 env-aware ML 这条研究线, 并把姊妹 idea 的数据前提坐实; 但不含方法/理论突破, 多个组件 (PPF、issue-time schema、负例设计) 均借用已发表先例组合而成, 未达 Exceptional。Claude 与 codex 独立评估在 Likelihood/Impact 两轴上完全一致, 无 >= 1 level 分歧。
+
+## Overall
+
+- Priority: High
+- Score: 7
+- Comments: v2 相对 v1 有实质性进步 (五/六个硬缺口基本闭合, pilot 从 SKIPPED 变为真实可核验的 4/4 PASS), 但 refine 过程中的两处 domain-owner override 需要区别对待——tracker-family 拒绝 (#6) 有据成立, 而 192h 时窗公式 (#3) 的具体参数经我独立核验与下游 sibling idea 的实际结算设计 (96h) 不符, 且 PPF/watershed 的技术对比表述不准确, 二者共同构成本轮最需要在下一版修正的逻辑缺口, 外加 codex 新发现的 localization leakage。分数维持 v1 的 7 分不变——工程执行层面的真实进展与新暴露的推理缺口大致抵消, 尚未达到 proposal-ready 门槛。Claude 初评与 codex second opinion 在 novelty (6)、quality 各维度、drift 判定、hard cap (no)、priority (High/7) 上高度收敛, 无 >= 1 level 分歧。
+
+</review>
+
