@@ -430,3 +430,11 @@ idea-scope deep-lit-tick (2 次 resume) 定向追读 2026-07-13 review 六个硬
 **元发现**: storm-tracking 算法与预警数据基础设施文献系统性不在 arXiv (多为 Elsevier/Copernicus/AGU/GMD 期刊), S2 429 限流下 arXiv fallback 对这两类强领域词几乎全部返回不相关噪声——与 topic-scope 已记录的 S2 429 模式一致, 非本次操作失误。
 
 **idea-scope B4 饱和判定: 已满足**（三目标缺口均有实质进展: 2 个完全覆盖 + 1 个部分覆盖且不再是文献调研问题）。不建议继续开新 idea-scope round; 下一步转入 refine。原始报告: `ideas/scs-env-benchmark-deep-lit-report-2026-07-14.md`。
+
+## 新增相关论文 [idea-reviewer, 2026-07-15]
+
+- **FunnelCloud: a cloud-based system for exploring tornado events** (Int'l J. Digital Earth, 2017, DOI:10.1080/17538947.2017.1279235; Taylor & Francis, 无 arXiv 镜像) [核验方式: WebSearch 多个独立结果 (Taylor & Francis 摘要页、ResearchGate 条目、Towson University 机构库条目) 交叉一致; **全文访问被两个独立源均 403 拒绝** (tandfonline.com 与 researchgate.net), 未能读取完整方法/实验章节, 故本条目按摘要级证据记录, 不作为可引用全文核验的撞车判定, 仅供 idea-reviewer 之后核实]: 系统对**龙卷报告记录本身**(而非连续场) 运行 **ST-DBSCAN** 找时空邻近的龙卷事件簇, 再把簇关联到 **NARR** 再分析环境场 (解码为图像存入 GridFS) 与 **NEXRAD** 雷达反射率 (从 AWS 下载, 转 JSON/BSON 存入数据库), 供科学家用时空统计/数据挖掘方法研究龙卷 outbreak 的气候指标关系。描述通篇为"探索/查询系统"(exploration system), 未见发布为带 splits/baselines/DOI 版本化的现代 ML 训练就绪基准的表述。**与本 topic 的关系**: 直接构成"对确认报告做 ST-DBSCAN 聚类 + 关联环境再分析场 + 关联雷达"这一具体技术组合的 2017 年在先系统, 是本轮 idea v3 "改用 ST-DBSCAN 式聚类" 这一具体选型在 novelty quick-check 中所称"未找到直接同构先例"的一个反例; 但限定于龙卷单一灾害类型、非现代开放 ML 基准封装 (无 confirmed/hard-negative/random 三类采样、无 issue-time 元数据、无 canonical splits/baselines/许可矩阵), 故不构成对"开放、版本化、issue-time-safe、多灾害 ML 训练基准"这一组合层面差异化主张的直接撞车, 但需要 idea 在 novelty 表述中明确承认并引用。
+
+## 补充事实核验 [idea-reviewer, 2026-07-15]
+
+- **NOAA Storm Events Database 发布时滞** (NCEI 官方 FAQ, `ncei.noaa.gov/stormevents/faq.jsp`, WebFetch 核验原文): "NCEI regularly receives Storm Data from the National Weather Service (NWS) approximately 75 days after the end of a data month" 且 "A publication and archive are produced and the Storm Events Database are updated within 75–90 days after the end of a data month"(示例: 1 月的数据约 4 月 15 日前后才可得)。**含义**: Storm Events Database 本身是约 2.5–3 个月滞后的事后档案产品, 与 HRRR/MRMS 那种小时/分钟级 issue-time 语义完全不同量级; 任何以 Storm Events 记录本身的"cutoff 前/后"来定义"预测视图"的机制, 在真实业务时间尺度 (0–2/2–6/6–12h lead time) 上都不存在可用的 cutoff 前记录 — 该数据源本身就不具备用于构造预测任务的近实时可得性, 需要替换为其他近实时源 (如 NWS Local Storm Reports 文本产品或雷达/预警信号) 才能定义真正 cutoff-safe 的预测区域。

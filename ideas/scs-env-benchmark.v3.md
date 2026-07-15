@@ -56,3 +56,57 @@ workspace: workspace/scs-env-benchmark/
   5. **coarse-pilot gap(不变)**: 正式示范为 0-2/2-6/6-12h lead-time sweep。
   6. **事件聚类(owner 修正, 推翻 v2 的 PPF 选型)**: v2 选 PPF 优于 watershed 的理由("PPF 不需要连续场")不成立, PPF 首步就是 KDE 构造连续密度场。更根本的问题是两者都不是正确的任务 family: 本任务不是"离散点变连续场再提对象", 而是**直接对 Storm Events 表格记录做数据聚类**, 簇的时空范围就是下载 MRMS/HRRR 的区域。改用 ST-DBSCAN 式(空间/时间两个独立阈值, precomputed-DBSCAN 实现), 已在真实数据上跑通(见 Pilot): 超参敏感性真实存在, 且与 NOAA `EPISODE_ID` 有交叉验证信号。arxiv-tools 检索(S2 反复 429, arXiv fallback 多为无关噪声)未找到直接同构先例, 故不强行引用背书, 依据是数据本身的扫描结果。tobac/PyFLEXTRKR/MCSMIP 仍是错误任务 family(连续网格场逐帧追踪), 继续排除。
   7. **localization leakage(codex 二次意见, 本轮新处理)**: 用事件全部报告(含未来报告)定义区域再当预测任务裁剪会泄漏未来信息。解决: 区分"预测视图"(只读 `task_cutoff` 前报告聚类)与"回顾视图"(全部报告)。Pilot 的 leakage ablation 已量化差异(3 倍以上), 写入 Experiments #3 与 MANIFEST handoff gate。
+
+<review date="2026-07-15">
+
+## Novelty
+
+- Score: 5/10
+- Closest prior work: MYRORSS (BAMS 103(3), 2022; 雷达+近风暴环境分析捆绑发布, 已在 v2 review 中确立); **FunnelCloud — a cloud-based system for exploring tornado events** (Int'l J. Digital Earth, 2017, DOI:10.1080/17538947.2017.1279235; 新发现, 见下)。
+- Key differentiator: 本轮 codex second opinion 发现且经我用 WebFetch/WebSearch 独立核验(NCEI FAQ 原文 + 多个独立摘要级来源交叉一致, 但 tandfonline.com 与 researchgate.net 均 403 拒绝全文访问, 未能读取完整方法章节, 按摘要级证据谨慎记录, 已 append 到 landscape)成立的一点: **FunnelCloud (2017) 已经对龙卷报告记录本身运行 ST-DBSCAN 聚类, 再关联 NARR 环境再分析场与 NEXRAD 雷达数据**——这与 v3 owner 修正后采用的"直接对 Storm Events 表格记录做 ST-DBSCAN 式聚类"技术选型在方法组合层面几乎同构。这直接推翻了 v3 Review decisions #6 "arxiv-tools 检索未找到直接同构先例, 故不强行引用背书"的表述——先例是有的, 只是不在 arXiv/S2 覆盖范围内(与 landscape 已反复记录的"storm-tracking 算法文献系统性不在 arXiv"元发现完全一致, 属该盲区的一个具体命中实例, 而非检索失误)。好消息是 FunnelCloud 限定单一灾害(龙卷)、是"探索/查询系统"而非发布的 splits/baselines/DOI 版本化现代 ML 基准, 所以"开放、版本化、issue-time-safe、多灾害(hail/wind/tornado/flash-flood)、负例采样、canonical split 的现代 ML 训练就绪基准"这一组合层面差异化主张在 MYRORSS+FunnelCloud 两个最近邻之上仍然成立, 但 idea 必须在下一版明确承认并引用 FunnelCloud, 不能再声称聚类选型"未找到同构先例"。无方法新颖性(预期内, benchmark idea); 真正可能新颖的仍是"issue-time-safe 环境增量随 lead time/区域/季节的严格无泄漏异质性发现", 但该发现本身尚待跑出。
+
+## Quality
+
+| Dimension | Score | Notes |
+|-----------|-------|-------|
+| Logical gaps | 3/10 | 三处 v2 遗留问题中一处真正 resolved、一处仅表面 resolved 实质未解、一处 partially resolved 但暴露了更深的新缺口。(1) **PPF/watershed 技术错误——resolved**: 我独立读 `cluster_events_pilot.py` 确认距离矩阵 `d(i,j)=max(d_space/eps_km, d_time/eps_hr)` 直接对两两报告的经纬度/时间做 precomputed-DBSCAN, 全程无 KDE、无栅格、无连续场构造, 技术表述现在准确, codex 独立复核一致。(2) **15 天窗口——unresolved, 且回避了本仓库自己的饱和证据**: `ideas/scs-env-benchmark.v1.md` 的"缺口(iii)"追读(4 篇全文精读 + 2 篇权威综述, 跨南非/大平原/西非/印度/全球尺度)与 `topics/0713-scs-benchmark-landscape.md` 的整合结论(2026-07-14, 与本次 review 同一仓库、仅早一天)都已明确给出"15 天在文献中无支撑证据, 应放弃 15 天设计, 改用可辩护的 -72h(或另寻大尺度环流/ENSO 一类完全不同的机制论证)"这一具体建议。v3 的"通用探索能力, 不追求匹配下游"这一新表述完全没有引用、反驳或提及这条本仓库自产的、饱和的、日期上几乎同时的证据链, 只是换了一种说法就把已被明确否定的具体数字重新写回去——这不是"给窗口一个更谦逊的定位", 而是对已有定论的静默绕行。若窗口真的"精确天数不是重点", 更诚实的选择是直接采用已有证据支持的 -72h, 而不是回退到已被证伪的 -15d。(3) **localization leakage——仅 partially resolved, 且揭示了一个更根本的问题**: 我独立复读 `cluster_events_pilot.py` 的 `main()` 确认 codex 的关键发现属实——`labels = st_dbscan(df, ...)` 对全部 114 条记录(含同一簇里时间上更晚的报告)一次性算出簇归属, 随后的"cutoff"消融只是对这个已经用了未来信息定出的簇成员按时间顺序取前缀, 并未真正"只用 cutoff 前可得的报告重新聚类"——不能证明预测视图机制本身可行, 只证明了"同一簇内早期报告的 bbox 比全部报告小", 这是一个较弱、不同的命题。更严重的是: 经我用 WebFetch 核验 NCEI 官方 FAQ 原文, NOAA Storm Events Database 本身是"data month 结束后约 75–90 天"才发布的事后档案产品(FAQ 原句: "the Storm Events Database are updated within 75–90 days after the end of a data month"), 与 HRRR 的小时级 issue-time 语义完全不是一个量级。这意味着在任何真实的 0–2/2–6/6–12h 业务预测时刻, Storm Events 记录本身根本不存在于"已发布"状态——"预测视图=只读 task_cutoff 前的 Storm Events 报告"这句话在业务时间尺度上没有非空的所指, 这不是一个实现细节, 而是这套预测视图设计从数据源层面就不成立, 需要换成真正近实时的源(如 NWS Local Storm Reports 文本产品或雷达/预警信号)才能定义 cutoff-safe 的预测区域。 |
+| Missing evidence signals | 4/10 | 我与 codex 各自独立重跑/核对 `cluster_events_pilot_log.txt`, 数字(1–17 clusters、默认组 ARI=0.206、cluster 0 从 68×25 到 215×58 km)与代码逐行吻合, 不是编造。但证据强度有限: 5 组手选超参不是完整 sweep; ARI=0.206 只是"本轮最高", 且 97/114 记录集中在同一 NOAA episode 的基率会让任何合理聚类都偏向"看起来纯", 削弱其独立信息量; leakage 的"前 25%报告"不是真实业务 cutoff 时刻的良好代理(见上); idea 自己的 Pilot 记为单一"Signal: POSITIVE"掩盖了这些局限, 更诚实的记法应是 MIXED——可执行性与超参敏感性证据为正, 区域外部有效性与"无泄漏预测视图确实可行"两条尚未获得支持。覆盖率/许可矩阵/真实 availability 审计仍和 v2 一样是零证据。 |
+| Narrative | 4/10 | 换掉 PPF/watershed 一处确实让技术表述更准确, 是真实进步; 但"未找到直接同构先例"被 FunnelCloud 证伪, "窗口是通用能力"回避而非回答"为什么是 15 天"这个具体问题, "预测视图已解决泄漏"在代码和数据源两层都超出了实际证据支持——三条主线索的说服力都被这轮独立核验削弱了, 且窗口与 FunnelCloud 两条本可通过一次文献/仓库自查就避免。 |
+| Venue contribution | 5/10 | ESSD 路径概念上仍站得住, 但预测视图机制的数据源缺陷意味着"预警 lead-time 评估"这条任务线需要重新设计事件区域来源, 不是执行层面的收尾工作; NeurIPS D&B(现称 Evaluations & Datasets)对 2026 的要求(持久托管、Croissant/RAI 元数据、可审阅样本)尚未被涉及。`empirical-finding` 合规(见下), 但目前仍是预注册计划。 |
+| Testability | 5/10 | 0–2/2–6/6–12h × 历史条件的 sweep 设计具体可执行; 但 idea 自己的"最便宜证伪信号"清单里没有列出真正最便宜、最可能命中的那个测试——"按 Storm Events 的真实发布时滞, 统计有多少比例的预测样本能拿到任何 cutoff-前可用的报告来定义 crop", 这个测试几乎肯定会立刻证伪当前的预测视图设计, 应该被前移为第一道 gate, 而不是等到覆盖矩阵之后才发现。 |
+| Outcome realism | 4/10 | 去重资产层、先审计后下载的顺序仍然正确; 但窗口从 v2 的 192h 回退到 ~15 天(未同步调整 Estimated effort 文本, 与 v2 逐字相同)、加上预测视图需要更换数据源重新设计(而非调参), 3–6 个月的数据产品交付估计比 v2 时更加乐观, 而不是更现实。 |
+| Contribution type compliance | 10/10 | idea types `{benchmark, application, empirical-finding}` ⊆ preferred-contribution-types `{benchmark, application, empirical-finding}`: yes |
+| Overall Quality | 5/10 | 七维平均 5.0。本轮的真实进展(PPF/watershed 技术修正、真实可复现的聚类 pilot)被两处独立核验坐实的新/未愈问题抵消并反超: 窗口问题从"公式无据"退化为"对本仓库自己饱和证据的静默绕行", 且新发现 localization-leakage 修复建立在一个不具备近实时可得性的数据源(Storm Events)之上, 从"部分处理"降级为"整条预测视图机制的前提不成立"。与 v2 相比这不是进步, 是同一深度问题换了一层更隐蔽的包装。 |
+
+## Contribution Drift (n >= 2 only; n=1 写 N/A)
+
+- v_{n-1} contribution types: `{benchmark, application, empirical-finding}`
+- v_n contribution types: `{benchmark, application, empirical-finding}`
+- Status: unchanged
+- Hard cap triggered: no(类型集合未变, 无越界扩张, 无 method/theory 静默删除; topic 本身也未声明这两类)
+
+## Alternative Framing
+
+收紧为双视图数据契约, 且把"预测"与"回顾"两个视图建立在**不同的数据源**上而不只是同一数据源的不同读取时刻: 回顾视图沿用 ST-DBSCAN 对 Storm Events 表格记录聚类, 专供事件索引/QC/climatology 用途, 明确不参与任何预测任务; 预测视图改用真正近实时可得的源(NWS Local Storm Reports 文本产品、雷达/预警信号, 或固定网格锚点)定义 cutoff-safe 的空间 crop。前置环境窗按本仓库自己的 landscape 结论收窄到有证据支持的 -72h 作为默认, 更长历史(如涉及土壤湿度以外确有多日至季节尺度机制的变量, 例如大尺度环流持续性)需要单独论证, 不与"通用探索能力"这一无需论证的说法混用。旗舰问题仍是 issue-time-safe 环境增量随 lead time/区域/季节如何变化, 不引入 preferred 集合外的贡献类型。
+
+## Claims Discipline
+
+| Outcome | Supportable claim |
+|---------|------------------|
+| POSITIVE | 仅当预测任务使用真正 cutoff-safe(非 Storm-Events-衍生)的空间锚点、预注册最小实际效应、held-out year/region 且功效充分时, 才能声称 HRRR 环境输入相对 MRMS-only 产生增量; 只有 lead-time 交互项本身显著且跨 held-out 稳健才能声称"增量随 lead time 增大"。不得声称 ST-DBSCAN 应用于风暴报告是新方法(FunnelCloud 2017 已有直接先例)、15 天窗口有物理依据, 或当前"预测视图"设计已解决泄漏。 |
+| NULL | provenance/QC/coverage 合格的数据产品仍可发布; 只能说当前设置未检出环境或长历史增量, 不能声称环境无信息; 功效充分的 NULL 本身可构成一条克制的 empirical finding。 |
+| NEGATIVE | 覆盖/许可/聚类区域稳定性任一失败, 仅否定当前发布规格; 若 Storm Events 的真实发布时滞证明"预测视图"在业务时间尺度上无法用该数据源构造, 这仅否定"用 Storm Events 定义预测 crop"这一具体设计, 不否定回顾性事件索引、固定网格预测任务, 也不否定环境信息本身或下游因果研究的可行性。 |
+
+## Likelihood-Impact Matrix
+
+- Priority: High = Likelihood: Medium x Impact: High
+- Numeric score for ideas.xml: 7
+- Rationale: Likelihood = Medium——四源单事件访问与聚类 pilot 均为真实、可独立复现的证据, ESSD-first 成稿路径依然清楚; 但本轮新增/坐实的两处问题(15 天窗口对本仓库饱和证据的绕行、预测视图机制建立在无近实时可得性的 Storm Events 之上)都是有明确修复路径的工程/设计问题(收窄窗口或另寻机制论证; 换用近实时报告源定义预测 crop), 不构成不可逾越的障碍, 故维持 Medium 而非降为 Low。Impact = High——若最终交付一个真正 issue-time-safe、覆盖多灾害、有 splits/baselines 的开放强对流环境-雷达-预警基准, 仍会明显推进 env-aware nowcasting/warning 这条研究线并坐实姊妹 idea 的数据前提; 但 MYRORSS 与新发现的 FunnelCloud 已分别占据"雷达+环境"和"报告聚类+环境+雷达"两个组件层面的在先系统, 方法本身不构成突破, 未达 Exceptional。Claude 独立评估与 codex second opinion 在 Likelihood(Medium)、Impact(High)、Priority(High)、numeric score(7)、hard cap(no)上完全一致, 无 >= 1 level 分歧; codex 独立发现的 FunnelCloud 先例与 Storm Events 发布时滞两点, 经我用 WebFetch/WebSearch 分别独立核验后确认属实, 已采纳入本报告并 append 到 landscape。
+
+## Overall
+
+- Priority: High
+- Score: 7
+- Comments: v3 相对 v2 有一处真实、可核验的技术修正(PPF/watershed 表述改正, 且换用的 ST-DBSCAN 有真实 pilot 数据支撑其超参敏感性), 但另外两处修复都不如自我报告的扎实: 15 天窗口是对本仓库自己饱和文献结论的静默绕行(未引用、未反驳, 只是换了措辞), localization-leakage 的"预测视图"修复经代码复核和 NCEI FAQ 核验后发现建立在一个发布时滞 75–90 天、在业务时间尺度上不存在"cutoff 前可得报告"的数据源之上, 问题比 v2 review 提出时更深。novelty 侧新发现 FunnelCloud(2017, ST-DBSCAN 直接作用于龙卷报告+NARR+NEXRAD)是本轮 codex 独立找到、经我独立 WebFetch/WebSearch 核验属实的先例, 推翻了 v3 "未找到直接同构先例" 的表述, 但不推翻组合层面(开放、版本化、多灾害、issue-time-safe、canonical-split 现代 ML 基准)的整体差异化。分数维持 v1/v2 的 7 分不变: Likelihood/Impact 两轴的判断本身未变(仍是 Medium × High), 新发现的问题都有清楚的工程修复路径(收窄窗口或换机制论证; 换用近实时报告源定义预测 crop; 补充引用 FunnelCloud), 不构成 Low likelihood 或 Impact 降级的理由。未触发 contribution-scope hard cap。Claude 与 codex 在本轮全部维度上高度收敛, 无 >= 1 level 分歧。
+
+</review>
