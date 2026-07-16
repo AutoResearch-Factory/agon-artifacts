@@ -41,6 +41,6 @@
     <one-line>v10 首次实跑完整 96h 原始网格 CNN：等历史、等 7 窗口、等容量并含 sham；合格的位置保留 CNN 上 raw/causal AUPRC=0.690/0.755，Delta=+0.065 [-0.013,+0.154]，NULL；P0 的 D 通道跨 8 seed 定位真实 lag，但 day J 仍不具 lag 特异性，真实逐小时 HRRR 继续受 stop gate 阻塞。</one-line>
   </workspace>
   <workspace slug="scs-env-benchmark" date="2026-07-14">
-    <one-line>v4: 四源 4/4 PASS；114 条真实报告的 cutoff 消融已改为每个时点重聚类，复现 1-17 簇与 ARI=0.206，最大区域由 25% 时 68x25km 演化为完整 215x58km，75% 时仅 27/33 最终成员连到锚点；Signal=MIXED，全量下载等待 30 日覆盖、许可、正常态候选率与参数稳定性 gates。</one-line>
+    <one-line>v5: 四源 4/4 PASS；cutoff 重聚类审计复现 1-17 簇与 ARI=0.206；新增 -15d/+5d 正常态产率 smoke test：52/84 个 6 小时步长时点为无报告+弱回波候选 (32 个在事件前)，折合约 312/504h，单包超预注册 gate (≥48h/≥24h 事件前) 约 6 倍；Signal=MIXED，全量下载仍等 30 日覆盖、许可与参数稳定性 gates。</one-line>
   </workspace>
 </workspaces>
