@@ -55,3 +55,68 @@ workspace: workspace/scs-env-benchmark/
   5. PARTIAL (-15d 长度论证): 窗口保留; 长度依据补为正常态采样预算 + 0710-causal-scs 估计器预热深度反推, 受产率 gate 约束; 物理记忆与因果主张继续禁止。
   6. ACCEPT (工期现实性): 交付分两期, 数据产品 + 概率旗舰评测 + 演化分析先行, nowcasting 全量第二期; 三任务均保留, 不删。
   7. ACCEPT (Alternative Framing 的可用内核): "特征表 vs 原始场" 对比以包内消融纳入 (实验 6); RUC 2006-2011 与 HRRR 不可比, 故不跨时代直接对表其数据。
+
+<review date="2026-07-16">
+
+## Novelty
+
+- Score: 5/10
+- Closest prior work: HR-Extreme (2409.18885, 2024); 最近的已发布数据产品对照: MYRORSS Storm Cluster Dataset (Zenodo DOI:10.5281/zenodo.19644586, 2026-04)
+- Key differentiator: 三条审计唯一轴经本轮独立核验全部成立且表述忠实于审计表: (a) HR-Extreme 的 ±15d 正常时刻对比确为论文内验证 (随机 50 时间戳、距事件 ≥24h), 未随数据交付 — wiki/2409.18885.md 全文笔记核验; (b) MYRORSS-2026 经我 WebFetch Zenodo 记录页复核, 交付确是 ~1060 列对象级派生特征统计 (2006-2011, 无格点场/廓线/事件前窗/正常态/预警), v5 的 "特征统计 vs 原始演化场" 种类区分成立; (c) MeteorPred 以 CMA 预警为标签、零事件验证的反例成立 — wiki/2508.06859.md 核验。我的三组独立搜索 (severe convective benchmark / near-storm environment dataset / null-event negative-sample dataset) 未发现审计表之外的新竞品; UniExtreme (2508.01426) 已在 landscape, 2509.09195 为卫星亮温方法论文不相关。但需保持清醒: 三条轴全部是交付形态/整编语义层差异, 方法零新颖 (idea 已诚实声明, FunnelCloud 在先); HR-Extreme 的生成接口本可产任意窗长, 长窗轴严格说是 "严谨产品化" 而非新能力; "唯一" 必须永远限定为 "在已审计 15 近邻中" (v5 目前措辞已如此限定, 投稿时不得放宽)。真正可能的新颖性在尚未跑出的 empirical finding: 原始演化场相对 issue-time-safe 特征表的增量及其随 lead time/区域/季节的异质性 (实验 6+4)。
+
+## Quality
+
+| Dimension | Score | Notes |
+|-----------|-------|-------|
+| Logical gaps | 6/10 | v4 的三个设计级缺口真正闭合: 抽样框契约 (C3 双轨)、区域日报告无关声明、预注册数值 gate 均落地且 gate 度量机器经真数据验证可跑。残余缺口 (均 proposal 级可修): (i) C3 仍是 "未抽样固定框架 或 发布权重" 两案并存, canonical 任务未冻结——总体、时空单元、lead time、纳入概率算法都待定 (codex 提出, 我认可); (ii) 重叠事件包共享原始资产与正常时段, 仅按 year/region 切分不必然防泄漏, split 规则需按包重叠显式定义 (codex 新发现, 有效); (iii) 实验 6 需锁定 issue-time-safe 特征基线与匹配容量/信息预算, 否则 "原始场胜特征表" 可能混杂容量/分辨率/事后对象定位; (iv) "正常态" 定义未区分静稳背景与临发对流时段——smoke 中事件日 00-18Z 全部计为正常候选 (18Z 距 21Z 起对流仅 3h), 对比 HR-Extreme 用 ≥24h 距事件间隔, 正常态合成若混入临发环境会稀释 axis (b) 的分析价值, 建议交付时加 distance-to-nearest-event 分层字段; (v) -15d 长度仍只有采样预算+姊妹预热的反推, 无窗长-产率-存储成本曲线。 |
+| Missing evidence signals | 5/10 | Smoke test 经我全链路独立核验为真: 84 个真实 MRMS 文件在盘 (573MB); 反射率计算 5/5 复算吻合 (含临界值 34.8 dBZ); 报告匹配 6/6 复算吻合 (93 条 in-bbox、±3h 计数、CZ_TIMEZONE 修正对 OK 全为 CST-6 成立); log 数字与 idea 数字一致; 限制 (单包/6h 步长/最低仰角反射率) 在 MANIFEST 诚实记载。一处措辞需降温: "折合约 312/504 小时、超 gate 约 6 倍" 是 6 小时抽样比例外推, 不是逐小时实测, 直接可比数字只有 52/84; 外推当作裕量证据不成立 (codex 提出, 成立)。仍为零证据: 跨季节/区域 30 日矩阵、逐资产再分发条款 (尤其 IEM 几何层)、存储/托管成本、标签偏差量化、任何预测增量或消融结果。 |
+| Narrative | 6/10 | "同一契约三类一等用途 + 数据种类旗舰消融" 比 v4 前进——实验 6 给了 "为什么要原始场" 一个可检验的脊柱。弱点: 三任务并列仍显 omnibus, 最强单主线其实是 "可审计环境轨迹产品是否改变相对特征表的评估结论", 演化分析与 nowcasting 更适合作为消费者/示范而非并列旗舰 (codex 与我一致)。 |
+| Venue contribution | 6/10 | ESSD 路径完好且 NULL 兼容, 两期交付把重实验留给 D&B 路径的分工基本对齐 ESSD "数据描述为主" 的范围要求; 15 行审计表正是 D&B 审稿人要的对表。缺口: ESSD 级的开放仓储/永久托管/独立数值验证方案未落一字; NeurIPS Evaluations & Datasets 需要实验 6 的实际结果才能回答 "该资源如何改变评估实践"。 |
+| Testability | 7/10 | 最便宜证伪信号真实且便宜: 30 日审计的四源交集/再分发/产率 gate, 数值门槛明确 (80%/48h/24h), 度量机器已被单包真数据验证可执行, 敏感性扫描 (35dBZ、±3h) 已列入 TODO。局限: 这些 gate 证伪的是发布规格而非核心价值主张 (后者要等实验 6); ΔBSS/ΔCSI ≥ +0.02 数值本身未按 lead time/空间尺度/业务意义论证, CSI 的阈值选择协议未定; 逐日 block-bootstrap 对重叠包与天气过程自相关的覆盖存疑。 |
+| Outcome realism | 6/10 | 两期制 (数据产品+概率旗舰+演化 6-12 月, nowcasting 全量 12-18 月) 回应了 v4 的工期批评, 先 gate 后下载顺序正确。风险仍偏乐观处: 长窗原始场按 -15d/+5d × 多区域可能达数十 TB, 开放托管、出口带宽、长期版本维护未计价; 三任务全保留而非收缩为一条旗舰评测, 团队容量证据缺失 (codex 强调, 部分成立——两期制已部分缓解)。 |
+| Contribution type compliance | 10/10 | idea types {benchmark, application, empirical-finding} ⊆ preferred-contribution-types {benchmark, application, empirical-finding}: yes |
+| Overall Quality | 6/10 | 六维平均 6.0 (compliance 不计入)。v5 把 v4 提出的全部四个 ACCEPT 项真正落地, smoke test 是本系列第一个经第三方全链路复算验证的 pilot 证据; 剩余缺口集中在 canonical 任务冻结与 ESSD 工程配套, 属 proposal 阶段工作。 |
+
+## Contribution Drift (n = 5)
+
+- v4 contribution types: {benchmark, application, empirical-finding}
+- v5 contribution types: {benchmark, application, empirical-finding}
+- Status: unchanged
+- Hard cap triggered: no (无越界扩张; 无 method/theory 删除; 类型集合与 topic preferred 完全一致)
+
+## 上版 concern 逐条判定 (v4 review → v5)
+
+1. MYRORSS-2026 显式对表 — **resolved**: landscape 15 行审计 + novelty 段重写为三条界定清楚的唯一轴, 且把 v4 review "RUC environment features" 的宽泛表述修正为经下载核验的 "对象级特征统计" (我经 Zenodo 记录页独立复核属实)。
+2. 概率任务抽样框契约 — **partially resolved**: C3 原则正确 (未抽样固定框架 或 纳入概率/权重, TorNet 先例), 但两案未择一冻结, 无总体/权重实例; 属设计承诺而非完成。
+3. 区域日与报告无关 — **resolved** (规格层面): 固定 tile/CWA、定义过程不接触 Storm Events 已显式写入 C3。
+4. 预注册数值门槛 — **resolved**: 产率 gate (80%/48h/24h) + 最小实际效应 (ΔBSS/ΔCSI +0.02, block-bootstrap CI) 落地, 且 gate 度量已由真数据 smoke 验证可算; 新遗留: 阈值的业务论证与 "6 倍裕量" 的外推措辞。
+5. -15d 长度独立论证 — **partially resolved, 遗留有据声明**: v5 自己标注 PARTIAL, 补了采样预算+预热深度反推并受产率 gate 约束; 仍缺窗长-成本曲线, 但作为声明诚实的设计约定可接受。
+6. 工期收缩为 "数据产品+一条旗舰评测" — **partially resolved, pushback 部分有据**: 两期制采纳了分期内核且 12-18 月总期更诚实; 三任务全保留的容量证据仍缺, 但 nowcasting 后置已实质降低第一期风险, 接受。
+7. Alternative framing (特征表 vs 原始场旗舰对比) — **resolved**: 实验 6 纳入, 且正确拒绝跨时代直接对比 RUC 数据。
+
+## Alternative Framing
+
+现框架已接近最锐 (v4 的替代框架已被采纳为实验 6)。进一步收敛方向 (不改变贡献类型): 把主贡献表述为 "带 availability-time 契约的环境轨迹数据产品 + 一条信息层级旗舰评测" (issue-time-safe 特征表 → 单时刻场 → 完整演化场 → +雷达, 在冻结总体上随 lead time/区域/季节比较), 演化分析与 nowcasting 降为消费者示范。这是叙事收敛而非重构, 可留给 proposal 定夺。
+
+## Claims Discipline
+
+| Outcome | Supportable claim |
+|---------|------------------|
+| POSITIVE | 仅在冻结的代表性总体、无重叠泄漏 split、availability-time 截断、容量匹配基线、预注册效应门槛全部满足时, 才可声称原始演化场输入相对特征表/气候学/MRMS-only 的可复现增量; 演化结论限跨事件稳健的描述性陈述。不得声称组合层面 "首次"、审计范围外的无条件唯一性、15 天记忆、因果作用或业务可部署性。v5 的 POSITIVE 行已含大部分限定, 达标。 |
+| NULL | 数据产品照发 (ESSD); 只称当前任务/模型/功效未检出增量; 功效充分的 NULL 可反向支持 "特征统计已足够" 这一克制 empirical finding——此时不得再用预测增量论证长窗必要性, 长窗价值须退守演化分析用途。v5 的 NULL 行达标。 |
+| NEGATIVE | 覆盖/许可/产率 gate 失败仅否定当前发布规格; 代表性框架构造不出则撤回概率/校准主张且不换事件富集样本续报; 可选任务失败只删对应任务; 实验 6 失败削弱 D&B 路径但不否定合格的 ESSD 产品。v5 的 NEGATIVE 行达标。 |
+
+## Likelihood-Impact Matrix
+
+- Priority: High = Likelihood: Medium x Impact: High
+- Numeric score for ideas.xml: 7
+- Rationale: Likelihood = Medium——ESSD-first 成稿路径明确且 NULL 兼容, v4 全部设计级缺口已闭合, gate 机器经真数据验证; 但成功仍同时依赖多区域覆盖/许可/产率审计通过、canonical 总体冻结、无泄漏 split 构造和长期托管落地等多个条件, 未达 "主要风险仅剩工程执行" 的 High 标准。Impact = High——若交付原始演化场级、issue-time 可审计、基率可解释的现代 HRRR-MRMS 开放基准并坐实 (或功效充分地否证) 环境增量, 会实质影响 env-aware nowcasting/warning 研究线并为姊妹 topic 提供数据底座; 组件层面先例众多、限于 CONUS, 不达 Exceptional。查表 Medium × High = High (7)。Claude 与 codex 在 Novelty (5/5)、Likelihood (Medium/Medium)、Impact (High/High)、Priority (High/7)、hard cap (no) 上完全一致, 无 >= 1 level 分歧。
+
+## Overall
+
+- Priority: High
+- Score: 7
+- Comments: v5 是本系列收敛质量最高的一版: 三条唯一轴忠实于审计表且经我独立复核, smoke test 经全链路第三方复算 (radar 5/5, 报告匹配 6/6) 证实真实诚实, v4 四个 ACCEPT 项全部落地, 无 contribution drift、无 hard cap。尚差 proposal-ready 一步之遥, 单一最重要遗留 blocker: 冻结概率任务的 canonical 评测总体 (C3 两案择一, 给出总体/权重实例) 并连带定义重叠包无泄漏 split 规则; 次级事项: 正常态候选加 distance-to-event 分层、实验 6 的容量匹配协议、"6 倍裕量" 措辞降温为 52/84 实测值。这些均为 proposal 首章工作量, 不构成方向风险, 建议进入 proposal 阶段并在 proposal 中把 30 日审计设为 go/no-go。
+超长警告: 文件 10.0 KB (10001 bytes, 不含本次 review 块), 超过 10 KB 上限 0.01% — 临界值, proposal 阶段请勿再增重 idea 文件。
+
+</review>
