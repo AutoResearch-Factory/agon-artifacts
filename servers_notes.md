@@ -29,6 +29,11 @@ Template entry.
 
 ### Pitfalls
 
+#### 2026-09-26 - Optional external time binary absent on RHEL
+A launcher using `/usr/bin/time` may exit 127 before Python starts. Use bash's built-in `time` with `TIMEFORMAT='real %R user %U sys %S'`, redirect its stderr separately, and retain `PIPESTATUS[0]` when piping to tee. Sample Python PIDs for RSS; bash time includes child CPU but does not report memory.
+#### 2026-09-26 - Frozen numerical coordinates versus cross-CPU libm
+Re-running a trig-based coordinate generator on another CPU/libm may change a few final bits even with identical seeds. Once an asset is canonical, transfer its bytes and verify its receipt hashes; do not regenerate it on load, overwrite it, or relax the hash check. Record cross-platform regeneration as a separate diagnostic.
+
 #### 2026-09-25 - `screen -dmS <s> bash launcher.sh` keeps NO log unless the launcher itself redirects
 Symptom: the job runs to completion (`DONE` says `EXIT_0`, every result file is there) but `results/<run>/train.log` does not exist, and by the time you look the screen session is already gone — `screen -S <s> -X hardcopy` answers `No screen session found`, so the stdout is unrecoverable. Cause: `screen -dmS` exits with its command, taking the scrollback with it; a launcher that runs `timeout N python train.py` with no redirect writes only to that dead pty. This bites hardest on short jobs, where the session is gone before you check. Fix: redirect *inside* the launcher — `python train.py ... > results/<run>/train.log 2>&1` — not via `tee` (see the SIGTTOU note below) and not via `screen -L` (its `screenlog.N` lands wherever screen's cwd was). Check right after launch: `test -s results/<run>/train.log || echo "NO LOG - fix the launcher before it finishes"`. Recovery is only cheap if the job is deterministic and short: re-running from scratch gave a byte-identical `solves.jsonl`, which then doubled as a determinism receipt — but that is luck, not a plan.
 
