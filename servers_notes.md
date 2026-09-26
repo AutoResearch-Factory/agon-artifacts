@@ -29,6 +29,9 @@ Template entry.
 
 ### Pitfalls
 
+#### 2026-09-26 - The FIRST CUDA replay in a process differs in the last bits from every later one
+Symptom: you replay the same optimizer segment three ways in one process to prove two drivers agree; whichever mode runs *first* ends on different parameters (we saw max|dw| 1.8e-3 to 3.1e-3 after 400 L-BFGS iterations in float64), and reordering the modes moves the discrepancy to whatever is now first. Cause: the first matmul in a fresh CUDA context picks different cuBLAS workspace/algorithm than later calls, so a last-bit difference enters step 1; a chaotic iteration then amplifies it. Fix: before the comparison, run a throwaway warm-up of the same shapes, or put a sacrificial replay at position 1 and ignore it; always report the *first iteration at which parameter hashes differ*, not only the final distance. Check: repeat one mode at two positions in the run order - if the two copies of the same mode disagree, it is position, not mode.
+
 #### 2026-09-26 - Optional external time binary absent on RHEL
 A launcher using `/usr/bin/time` may exit 127 before Python starts. Use bash's built-in `time` with `TIMEFORMAT='real %R user %U sys %S'`, redirect its stderr separately, and retain `PIPESTATUS[0]` when piping to tee. Sample Python PIDs for RSS; bash time includes child CPU but does not report memory.
 #### 2026-09-26 - Frozen numerical coordinates versus cross-CPU libm
